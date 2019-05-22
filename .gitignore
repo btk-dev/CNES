@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+#Directories
+/.vs
+Debug
+NESEmulator/Debug
+
+#Files
+*.user
