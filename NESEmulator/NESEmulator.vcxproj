@@ -123,13 +123,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cartridge.cpp" />
+    <ClCompile Include="Console.cpp" />
     <ClCompile Include="cpu.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cartridge.h" />
+    <ClInclude Include="Console.h" />
     <ClInclude Include="cpu.h" />
+    <ClInclude Include="Instructions.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\nestest.nes" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

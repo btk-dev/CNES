@@ -1,6 +1,15 @@
 #include "cartridge.h"
 
-std::vector<BYTE> Cartridge::loadGame(const char* rom_file) {
+Cartridge::Cartridge()
+{
+
+}
+
+Cartridge::~Cartridge() {
+
+}
+
+std::vector<unsigned short> Cartridge::loadGame(const char* rom_file) {
 	std::streampos fileSize;
 	std::ifstream file(rom_file, std::ios::binary);
 
@@ -8,13 +17,14 @@ std::vector<BYTE> Cartridge::loadGame(const char* rom_file) {
 	fileSize = file.tellg();
 	file.seekg(0, std::ios::beg);
 
-	std::vector<BYTE> fileData(fileSize);
+	std::vector<unsigned short> fileData(fileSize);
 	file.read((char*)& fileData[0], fileSize);
 
 	return fileData;
 }
 
-bool verifyINES(std::vector<BYTE> header) {
+
+bool Cartridge::verifyINES(std::vector<unsigned short> header) {
 	bool isValid = false;
 
 	//header map in bytes
@@ -30,14 +40,29 @@ bool verifyINES(std::vector<BYTE> header) {
 	std::string constant;
 	for (int i = 0; i <= 2; i++)
 		constant += header[i];
-	if (constant == "NES")
+	if (constant == "NES" && header[3] == 0x1A)
 		isValid = true;
 
-	Cartridge::PRGROM = 16894 * header[4];
-	Cartridge::CHRROM = 8192 * header[5];
+	Cartridge::PRGROM = header[4];
+	Cartridge::CHRROM = header[5];
 
 	Cartridge::mapperInfo = (header[7] & 0xF0) >> 4;
 	Cartridge::mapperInfo = (Cartridge::mapperInfo & (header[7] & 0xF0));
 
 	return isValid;
+}
+
+unsigned short Cartridge::returnMapperInfo()
+{
+	return Cartridge::mapperInfo;
+}
+
+unsigned short Cartridge::returnPGR()
+{
+	return Cartridge::PRGROM;
+}
+
+unsigned short Cartridge::returnCHR()
+{
+	return Cartridge::CHRROM;
 }

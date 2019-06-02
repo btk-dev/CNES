@@ -1,4 +1,8 @@
 #pragma once
+#include <vector>
+#include <iostream>
+
+#include "Instructions.h"
 
 typedef unsigned short BYTE;
 
@@ -9,9 +13,12 @@ public:
 
 	void Init(CPU*);
 
-	void Clock_Tick(CPU*);
+	void Clock_Tick();
 
 	bool Reset(CPU*);
+
+	void loadGame(std::vector<BYTE> game);
+
 private:
 	//clock cycle of 1.79 MHz (1.66 on PAL)
 	//clock divisor d = 12 (16 on PAL)
@@ -34,7 +41,8 @@ private:
 	bool zeroFlag;
 	bool interruptDisable;
 	bool decimalModeFlag;
-	bool breakCommand;
+	bool bFlag1;
+	bool bFlag2;
 	bool overflowFlag;
 	bool negativeFlag;
 
@@ -48,7 +56,9 @@ private:
 	//$4000 - $4017 - NES APU and I/O registers
 	//$4018 - $401F - APU and I/O functionality. Normally disabled
 	//$4020 - $FFFF - Cartridge space. PRG ROM, PRG RAM and mapper registers
-	unsigned int memory[0x10000];
+	unsigned int memory[0xFFFF];
+	//Stack starts at 0xFF and goes down
+	unsigned int stack[0xFF];
 	//Common
 	//$6000 - $7FFF - Battery backed save or work ram
 	//$8000 - $FFFF - Usual ROM
@@ -57,4 +67,71 @@ private:
 	//$FFFC-$FFFD - Reset vector
 	//$FFFE-$FFFF - IRQ/BRK vector
 	BYTE opcode;
+
+	//number of cycles to idle for
+	int idleCycles;
+
+	bool isPageCrossed(BYTE, BYTE);
+
+	Instructions I;
+	Instructions::Instruction inst;
+
+	void SetZN(BYTE);
+
+	void LDA(Instructions::Instruction);
+	void LDX(Instructions::Instruction);
+	void LDY(Instructions::Instruction);
+	void STA(Instructions::Instruction);
+	void STX(Instructions::Instruction);
+	void STY(Instructions::Instruction);
+	void TAX(Instructions::Instruction);
+	void TAY(Instructions::Instruction);
+	void TXA(Instructions::Instruction);
+	void TYA(Instructions::Instruction);
+	void TSX(Instructions::Instruction);
+	void TXS(Instructions::Instruction);
+	void PHA(Instructions::Instruction);
+	void PHP(Instructions::Instruction);
+	void PLA(Instructions::Instruction);
+	void PLP(Instructions::Instruction);
+	void AND(Instructions::Instruction);
+	void EOR(Instructions::Instruction);
+	void ORA(Instructions::Instruction);
+	void BIT(Instructions::Instruction);
+	void ADC(Instructions::Instruction);
+	void SBC(Instructions::Instruction);
+	void CMP(Instructions::Instruction);
+	void CPX(Instructions::Instruction);
+	void CPY(Instructions::Instruction);
+	void INC(Instructions::Instruction);
+	void INX(Instructions::Instruction);
+	void INY(Instructions::Instruction);
+	void DEC(Instructions::Instruction);
+	void DEX(Instructions::Instruction);
+	void DEY(Instructions::Instruction);
+	void ASL(Instructions::Instruction);
+	void LSR(Instructions::Instruction);
+	void ROL(Instructions::Instruction);
+	void ROR(Instructions::Instruction);
+	void JMP(Instructions::Instruction);
+	void JSR(Instructions::Instruction);
+	void RTS(Instructions::Instruction);
+	void BCC(Instructions::Instruction);
+	void BCS(Instructions::Instruction);
+	void BEQ(Instructions::Instruction);
+	void BMI(Instructions::Instruction);
+	void BNE(Instructions::Instruction);
+	void BPL(Instructions::Instruction);
+	void BVC(Instructions::Instruction);
+	void BVS(Instructions::Instruction);
+	void CLC(Instructions::Instruction);
+	void CLD(Instructions::Instruction);
+	void CLI(Instructions::Instruction);
+	void CLV(Instructions::Instruction);
+	void SEC(Instructions::Instruction);
+	void SED(Instructions::Instruction);
+	void SEI(Instructions::Instruction);
+	void BRK(Instructions::Instruction);
+	void NOP(Instructions::Instruction);
+	void RTI(Instructions::Instruction);
 };
