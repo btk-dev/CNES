@@ -2,7 +2,7 @@
 
 #include <string>
 
-using BYTE = unsigned short;
+using BYTE = unsigned char;
 
 class Instructions {
 public:
@@ -16,6 +16,8 @@ public:
 		bool canPageCross;
 		int mode;
 	};
+
+	Instruction I;
 
 	enum instructionTypes {
 		LoadStore = 1,
@@ -45,7 +47,7 @@ public:
 		ZeroPageIndexed //15
 	};
 
-	int _InstructionType[256] = {
+	int _InstructionType[0x100] = {
 		//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 		  11,  4,  0,  0,  0,  4,  7,  0,  3,  4,  7,  0,  0,  4,  7,  0, //0
 		  9,  4,  0,  0,  0,  4,  7,  0,  10,  4,  0,  0,  0,  4,  7,  0, //1
@@ -65,8 +67,7 @@ public:
 		  9,  5,  0,  0,  0,  5,  6,  0,  10,  5,  0,  0,  0,  5,  6,  0  //F
 	};
 
-	int _InstructionMode[256] = {
-		//not completed
+	int _InstructionMode[0x100] = {
 		//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 		  2,  12,  0,  0,  0,  8,  8,  0,  3,  2,  1,  0,  0,  5,  5,  0, //0
 		  4,  13,  0,  0,  0,  9,  9,  0,  3,  7,  0,  0,  0,  6,  6,  0, //1
@@ -86,7 +87,7 @@ public:
 		  4,  13,  0,  0,  0,  9,  9,  0,  3,  13,  0,  0,  0,  6,  6,  0  //F
 	};
 
-	int _InstructionLength[256] = {
+	int _InstructionLength[0x100] = {
 		//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 		  1,  2,  0,  0,  0,  2,  2,  0,  1,  2,  1,  0,  0,  3,  3,  0, //0
 		  2,  2,  0,  0,  0,  2,  2,  0,  1,  3,  0,  0,  0,  3,  3,  0, //1
@@ -106,7 +107,7 @@ public:
 		  2,  2,  0,  0,  0,  2,  2,  0,  1,  3,  0,  0,  0,  3,  3,  0  //F
 	};
 
-	int _InstructionCycles[256] = {
+	int _InstructionCycles[0x100] = {
 		//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 		  7,  6,  0,  0,  0,  3,  5,  0,  3,  2,  2,  0,  0,  4,  6,  0,  //0
 		  2,  5,  0,  0,  0,  4,  6,  0,  2,  4,  0,  0,  0,  4,  7,  0,  //1
@@ -126,7 +127,7 @@ public:
 		  2,  5,  0,  0,  0,  4,  6,  0,  2,  4,  0,  0,  0,  4,  7,  0   //F
 	};
 
-	int _InstructionPageCrossCycles[256] = {
+	int _InstructionPageCrossCycles[0x100] = {
 		//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //0
 		  1,  1,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  //1
@@ -145,8 +146,8 @@ public:
 		  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //E
 		  1,  1,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0   //F
 	};
-
-	std::string _instructions[256] = {
+	//I think I may have to make all these tables static and then create methods to populate them. Or try adding this to cpu class.
+	std::string _instructions[0x100] = {
 		//0      1      2      3      4      5      6      7      8      9      A      B      C      D      E      F
 		"BRK", "ORA", "INV", "INV", "INV", "ORA", "ASL", "INV", "PHP", "ORA", "ASL", "INV", "INV", "ORA", "ASL", "INV", //0
 		"BPL", "ORA", "INV", "INV", "INV", "ORA", "ASL", "INV", "CLC", "ORA", "INV", "INV", "INV", "ORA", "ASL", "INV", //1
@@ -167,8 +168,7 @@ public:
 	};
 
 	Instruction getInstruction(BYTE op) {
-		Instruction I;
-		BYTE opcode = op;
+		int opcode = op;
 		I.op = op;
 		I.name = _instructions[opcode];
 		I.type = _InstructionType[opcode];

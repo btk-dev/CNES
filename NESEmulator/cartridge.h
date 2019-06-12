@@ -4,7 +4,7 @@
 #include <fstream>
 #include <errno.h>
 
-//typedef unsigned char BYTE;
+using BYTE = unsigned char;
 
 //.h file for the game rom, data from physical cartridge
 
@@ -13,19 +13,19 @@ public:
 	Cartridge();
 	~Cartridge();
 
-	std::vector<unsigned short> loadGame(const char* rom_file);
+	std::vector<BYTE> loadGame(const char* rom_file);
 
-	bool verifyINES(std::vector<unsigned short> header);
+	bool verifyINES(std::vector<BYTE> header);
 
-	unsigned short returnMapperInfo();
-	unsigned short returnPGR();
-	unsigned short returnCHR();
+	BYTE returnMapperInfo();
+	BYTE returnPGR();
+	BYTE returnCHR();
 	//something like that to access console information?
 	//extern Console c;
 
-	unsigned short PRGROM;
-	unsigned short CHRROM;
-	unsigned short mapperInfo;
+	BYTE PRGROM;
+	BYTE CHRROM;
+	BYTE mapperInfo;
 private:
 	unsigned int rom_file[0x4000];
 };

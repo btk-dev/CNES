@@ -9,7 +9,7 @@ Cartridge::~Cartridge() {
 
 }
 
-std::vector<unsigned short> Cartridge::loadGame(const char* rom_file) {
+std::vector<BYTE> Cartridge::loadGame(const char* rom_file) {
 	std::streampos fileSize;
 	std::ifstream file(rom_file, std::ios::binary);
 
@@ -17,14 +17,14 @@ std::vector<unsigned short> Cartridge::loadGame(const char* rom_file) {
 	fileSize = file.tellg();
 	file.seekg(0, std::ios::beg);
 
-	std::vector<unsigned short> fileData(fileSize);
+	std::vector<BYTE> fileData(fileSize);
 	file.read((char*)& fileData[0], fileSize);
 
 	return fileData;
 }
 
 
-bool Cartridge::verifyINES(std::vector<unsigned short> header) {
+bool Cartridge::verifyINES(std::vector<BYTE> header) {
 	bool isValid = false;
 
 	//header map in bytes
@@ -52,17 +52,17 @@ bool Cartridge::verifyINES(std::vector<unsigned short> header) {
 	return isValid;
 }
 
-unsigned short Cartridge::returnMapperInfo()
+BYTE Cartridge::returnMapperInfo()
 {
 	return Cartridge::mapperInfo;
 }
 
-unsigned short Cartridge::returnPGR()
+BYTE Cartridge::returnPGR()
 {
 	return Cartridge::PRGROM;
 }
 
-unsigned short Cartridge::returnCHR()
+BYTE Cartridge::returnCHR()
 {
 	return Cartridge::CHRROM;
 }

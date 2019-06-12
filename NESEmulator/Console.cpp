@@ -8,18 +8,18 @@ void Console::powerUpConsole() {}
 
 void Console::createCPU() {
 	this->cpu = CPU();
-	this->cpu.Init(&this->cpu);
+	this->cpu.Init();
 }
 
 void Console::resetConsole(CPU* cpu) {
-	cpu->Reset(cpu);
+	cpu->Reset();
 }
 
-unsigned short Console::getPGRInfo(Cartridge c) {
+BYTE Console::getPGRInfo(Cartridge c) {
 	return c.returnPGR();
 }
 
-unsigned short Console::getCHRInfo(Cartridge c) {
+BYTE Console::getCHRInfo(Cartridge c) {
 	return c.returnCHR();
 }
 
@@ -33,14 +33,16 @@ void Console::loadCartridge(const char* file_path) {
 
 	//number of pages for program rom
 	//comes in 16Kb pieces
-	unsigned short pgr = Console::getPGRInfo(c);
+	BYTE pgr = Console::getPGRInfo(c);
 	
 	//number of pages for chr rom
 	//chr is for the ppu sprite information
 	//comes in 8kb pieces
-	unsigned short chr = Console::getCHRInfo(c);
+	BYTE chr = Console::getCHRInfo(c);
 
 	BYTE mapper = Console::getMapperInfo(c);
+
+	game.erase(game.begin(), game.begin() + 16);
 
 	//for (int i = 0; i < game.size(); i++) {
 		//Console::memory[0x4020 + i] = game[i];

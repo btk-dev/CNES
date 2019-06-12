@@ -10,7 +10,7 @@ int main() {
 	Console nes;
 	nes.createCPU();
 	nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\nestest.nes");
-	while (nes.is_Running) {
+	while (nes.is_Running()) {
 		nes.cpu.Clock_Tick();
 	}
 

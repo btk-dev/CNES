@@ -4,18 +4,18 @@
 
 #include "Instructions.h"
 
-typedef unsigned short BYTE;
+typedef unsigned char BYTE;
 
 class CPU {
 public:
 	CPU();
 	~CPU();
 
-	void Init(CPU*);
+	void Init();
 
 	void Clock_Tick();
 
-	bool Reset(CPU*);
+	bool Reset();
 
 	void loadGame(std::vector<BYTE> game);
 

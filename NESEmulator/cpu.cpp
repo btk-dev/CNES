@@ -1,13 +1,133 @@
 #include "cpu.h"
 
+int _InstructionType[0x100] = {
+	//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+	  11,  4,  0,  0,  0,  4,  7,  0,  3,  4,  7,  0,  0,  4,  7,  0, //0
+	  9,  4,  0,  0,  0,  4,  7,  0,  10,  4,  0,  0,  0,  4,  7,  0, //1
+	  8,  4,  0,  0,  4,  4,  7,  0,  3,  4,  4,  0,  4,  4,  7,  0, //2
+	  9,  4,  0,  0,  0,  4,  7,  0,  10,  4,  0,  0,  0,  4,  7,  0, //3
+	  11,  4,  0,  0,  0,  4,  7,  0,  3,  4,  7,  0,  8,  4,  7,  0, //4
+	  9,  4,  0,  0,  0,  4,  7,  0,  10,  4,  0,  0,  0,  4,  7,  0, //5
+	  8,  5,  0,  0,  0,  5,  7,  0,  3,  5,  7,  0,  8,  5,  7,  0, //6
+	  9,  5,  0,  0,  0,  5,  7,  0,  10,  5,  0,  0,  0,  5,  7,  0, //7
+	  0,  1,  0,  0,  1,  1,  1,  0,  6,  0,  2,  0,  1,  1,  1,  0, //8
+	  9,  1,  0,  0,  1,  1,  1,  0,  2,  1,  2,  0,  0,  1,  0,  0, //9
+	  1,  1,  1,  0,  1,  1,  1,  0,  2,  1,  2,  0,  1,  1,  1,  0, //A
+	  9,  1,  0,  0,  1,  1,  1,  0,  10,  1,  2,  0,  1,  1,  1,  0, //B
+	  5,  5,  0,  0,  5,  5,  6,  0,  6,  5,  6,  0,  5,  5,  6,  0, //C
+	  9,  5,  0,  0,  0,  5,  6,  0,  10,  5,  0,  0,  0,  5,  6,  0, //D
+	  5,  5,  0,  0,  5,  5,  6,  0,  6,  5,  11,  0,  5,  5,  6,  0, //E
+	  9,  5,  0,  0,  0,  5,  6,  0,  10,  5,  0,  0,  0,  5,  6,  0  //F
+};
+
+int _InstructionMode[0x100] = {
+	//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+	  2,  12,  0,  0,  0,  8,  8,  0,  3,  2,  1,  0,  0,  5,  5,  0, //0
+	  4,  13,  0,  0,  0,  9,  9,  0,  3,  7,  0,  0,  0,  6,  6,  0, //1
+	  5,  12,  0,  0,  8,  8,  8,  0,  3,  2,  1,  0,  5,  5,  5,  0, //2
+	  4,  13,  0,  0,  0,  9,  9,  0,  3,  7,  0,  0,  0,  6,  6,  0, //3
+	  3,  12,  0,  0,  0,  8,  8,  0,  3,  2,  1,  0,  5,  5,  5,  0, //4
+	  4,  13,  0,  0,  0,  9,  9,  0,  3,  7,  0,  0,  0,  6,  6,  0, //5
+	  3,  12,  0,  0,  0,  8,  8,  0,  3,  2,  1,  0,  11,  5,  5,  0, //6
+	  4,  13,  0,  0,  0,  9,  9,  0,  3,  7,  0,  0,  0,  6,  6,  0, //7
+	  0,  12,  0,  0,  8,  8,  8,  0,  3,  0,  3,  0,  5,  5,  5,  0, //8
+	  4,  13,  0,  0,  9,  9,  10,  0,  3,  7,  3,  0,  0,  6,  0,  0, //9
+	  2,  12,  2,  0,  8,  8,  8,  0,  3,  2,  3,  0,  5,  5,  5,  0, //A
+	  4,  13,  0,  0,  9,  9,  10,  0,  3,  7,  3,  0,  6,  6,  7,  0, //B
+	  2,  12,  0,  0,  8,  8,  8,  0,  3,  2,  3,  0,  5,  5,  5,  0, //C
+	  4,  13,  0,  0,  0,  9,  9,  0,  3,  13,  0,  0,  0,  6,  6,  0, //D
+	  2,  12,  0,  0,  8,  8,  8,  0,  3,  2,  3,  0,  5,  5,  5,  0, //E
+	  4,  13,  0,  0,  0,  9,  9,  0,  3,  13,  0,  0,  0,  6,  6,  0  //F
+};
+
+int _InstructionLength[0x100] = {
+	//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+	  1,  2,  0,  0,  0,  2,  2,  0,  1,  2,  1,  0,  0,  3,  3,  0, //0
+	  2,  2,  0,  0,  0,  2,  2,  0,  1,  3,  0,  0,  0,  3,  3,  0, //1
+	  3,  2,  0,  0,  2,  2,  2,  0,  1,  2,  1,  0,  3,  3,  3,  0, //2
+	  2,  2,  0,  0,  0,  2,  2,  0,  1,  3,  0,  0,  0,  3,  3,  0, //3
+	  1,  2,  0,  0,  0,  2,  2,  0,  1,  2,  1,  0,  3,  3,  3,  0, //4
+	  2,  2,  0,  0,  0,  2,  2,  0,  1,  3,  0,  0,  0,  3,  3,  0, //5
+	  1,  2,  0,  0,  0,  2,  2,  0,  1,  2,  1,  0,  3,  3,  3,  0, //6
+	  2,  2,  0,  0,  0,  2,  2,  0,  1,  3,  0,  0,  0,  3,  3,  0, //7
+	  0,  2,  0,  0,  2,  2,  2,  0,  1,  0,  1,  0,  3,  3,  3,  0, //8
+	  2,  2,  0,  0,  3,  2,  2,  0,  1,  3,  1,  0,  0,  3,  0,  0, //9
+	  2,  2,  2,  0,  2,  2,  2,  0,  1,  2,  1,  0,  3,  3,  3,  0, //A
+	  2,  2,  0,  0,  2,  2,  2,  0,  1,  3,  1,  0,  3,  3,  3,  0, //B
+	  2,  2,  0,  0,  2,  2,  2,  0,  1,  2,  1,  0,  3,  3,  3,  0, //C
+	  2,  2,  0,  0,  0,  2,  2,  0,  1,  3,  0,  0,  0,  3,  3,  0, //D
+	  2,  2,  0,  0,  2,  2,  2,  0,  1,  2,  1,  0,  3,  3,  3,  0, //E
+	  2,  2,  0,  0,  0,  2,  2,  0,  1,  3,  0,  0,  0,  3,  3,  0  //F
+};
+
+int _InstructionCycles[0x100] = {
+	//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+	  7,  6,  0,  0,  0,  3,  5,  0,  3,  2,  2,  0,  0,  4,  6,  0,  //0
+	  2,  5,  0,  0,  0,  4,  6,  0,  2,  4,  0,  0,  0,  4,  7,  0,  //1
+	  6,  6,  0,  0,  3,  3,  5,  0,  4,  2,  2,  0,  4,  4,  6,  0,  //2
+	  2,  5,  0,  0,  0,  4,  6,  0,  2,  4,  0,  0,  0,  4,  7,  0,  //3
+	  6,  6,  0,  0,  0,  3,  5,  0,  3,  2,  2,  0,  3,  4,  6,  0,  //4
+	  2,  5,  0,  0,  0,  4,  6,  0,  2,  4,  0,  0,  0,  4,  7,  0,  //5
+	  6,  6,  0,  0,  0,  3,  5,  0,  4,  2,  2,  0,  5,  4,  6,  0,  //6
+	  2,  5,  0,  0,  0,  4,  6,  0,  2,  4,  0,  0,  0,  4,  7,  0,  //7
+	  0,  6,  0,  0,  3,  3,  3,  0,  2,  0,  2,  0,  4,  4,  4,  0,  //8
+	  2,  6,  0,  0,  4,  4,  4,  0,  2,  5,  2,  0,  0,  5,  0,  0,  //9
+	  2,  6,  2,  0,  3,  3,  3,  0,  2,  2,  2,  0,  4,  4,  4,  0,  //A
+	  2,  5,  0,  0,  4,  4,  4,  0,  2,  4,  2,  0,  4,  4,  4,  0,  //B
+	  2,  6,  0,  0,  3,  3,  5,  0,  2,  2,  2,  0,  4,  4,  6,  0,  //C
+	  2,  5,  0,  0,  0,  4,  6,  0,  2,  4,  0,  0,  0,  4,  7,  0,  //D
+	  2,  6,  0,  0,  3,  3,  5,  0,  2,  2,  2,  0,  4,  4,  6,  0,  //E
+	  2,  5,  0,  0,  0,  4,  6,  0,  2,  4,  0,  0,  0,  4,  7,  0   //F
+};
+
+int _InstructionPageCrossCycles[0x100] = {
+	//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //0
+	  1,  1,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  //1
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //2
+	  1,  1,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  //3
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //4
+	  1,  1,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  //5
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //6
+	  1,  1,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  //7
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //8
+	  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  //9
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //A
+	  1,  1,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  1,  1,  1,  0,  //B
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //C
+	  1,  1,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0,  //D
+	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //E
+	  1,  1,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  1,  0,  0   //F
+};
+
+std::string _instructions[0x100] = {
+	//0      1      2      3      4      5      6      7      8      9      A      B      C      D      E      F
+	"BRK", "ORA", "INV", "INV", "INV", "ORA", "ASL", "INV", "PHP", "ORA", "ASL", "INV", "INV", "ORA", "ASL", "INV", //0
+	"BPL", "ORA", "INV", "INV", "INV", "ORA", "ASL", "INV", "CLC", "ORA", "INV", "INV", "INV", "ORA", "ASL", "INV", //1
+	"JSR", "AND", "INV", "INV", "BIT", "AND", "ROL", "INV", "PLP", "AND", "ROL", "INV", "BIT", "AND", "ROL", "INV", //2
+	"BMI", "AND", "INV", "INV", "INV", "AND", "ROL", "INV", "SEC", "AND", "INV", "INV", "INV", "AND", "ROL", "INV", //3
+	"RTI", "EOR", "INV", "INV", "INV", "EOR", "LSR", "INV", "PHA", "EOR", "LSR", "INV", "JMP", "EOR", "LSR", "INV", //4
+	"BVC", "EOR", "INV", "INV", "INV", "EOR", "LSR", "INV", "CLI", "EOR", "INV", "INV", "INV", "EOR", "LSR", "INV", //5
+	"RTS", "ADC", "INV", "INV", "INV", "ADC", "ROR", "INV", "PLA", "ADC", "ROR", "INV", "JMP", "ADC", "ROR", "INV", //6
+	"BVS", "ADC", "INV", "INV", "INV", "ADC", "ROR", "INV", "SEI", "ADC", "INV", "INV", "INV", "ADC", "ROR", "INV", //7
+	"INV", "STA", "INV", "INV", "STY", "STA", "STX", "INV", "DEY", "INV", "TXA", "INV", "STY", "STA", "STX", "INV", //8
+	"BCC", "STA", "INV", "INV", "STY", "STA", "STX", "INV", "TYA", "STA", "TXS", "INV", "INV", "STA", "INV", "INV", //9
+	"LDY", "LDA", "LDX", "INV", "LDY", "LDA", "LDX", "INV", "TAY", "LDA", "TAX", "INV", "LDY", "LDA", "LDX", "INV", //A
+	"BCS", "LDA", "INV", "INV", "LDY", "LDA", "LDX", "INV", "CLV", "LDA", "TSX", "INV", "LDY", "LDA", "LDX", "INV", //B
+	"CPY", "CMP", "INV", "INV", "CPY", "CMP", "DEC", "INV", "INY", "CMP", "DEX", "INV", "CPY", "CMP", "DEC", "INV", //C
+	"BNE", "CMP", "INV", "INV", "INV", "CMP", "DEC", "INV", "CLD", "CMP", "INV", "INV", "INV", "CMP", "DEC", "INV", //D
+	"CPX", "SBC", "INV", "INV", "CPX", "SBC", "INC", "INV", "INX", "SBC", "NOP", "INV", "CPX", "SBC", "INC", "INV", //E
+	"BEQ", "SBC", "INV", "INV", "INV", "SBC", "INC", "INV", "SED", "SBC", "INV", "INV", "INV", "SBC", "INC", "INV"  //F
+};
+
 CPU::CPU() {
-	CPU::A = CPU::X = CPU::Y = CPU::SP = CPU::PC /*= CPU::opcode = CPU::P*/ = 0;
-	CPU::Init(this);
+	this->A = this->X = this->Y = this->SP = this->PC /*= CPU::opcode = CPU::P*/ = 0;
+	Init();
 }
 
 CPU::~CPU() {}
 
-void CPU::Init(CPU* cpu) {
+void CPU::Init() {
 	//set P to $34
 	//A, X, Y = 0;
 	//S = $FD
@@ -17,30 +137,45 @@ void CPU::Init(CPU* cpu) {
 	//all 15 bits of noise channel LFSR = $0000. The first time the LFSR is clocked from the all-0s state it will shift 1
 	//internal memory ($0000 - $07FF) is inconsistant. Most emulators set them to a pattern
 	//cpu->P = cpu->memory[0x00034];
-	cpu->A = cpu->X = cpu->Y = 0;
-	cpu->SP = cpu->memory[0xFD];
-	cpu->memory[0x4017] = cpu->memory[0x0000];
-	cpu->memory[0x4015] = cpu->memory[0x0000];
+	//0x000 - 0x07FF is system ram, 0 at start up, 0x0800 - 0x0FFF is a map, 0x1000 - 0x17FF is a map, 0x1800 - 0x1FFF is a map
+	for (int i = 0; i <= 8191; i++)
+		this->memory[i] = 0x00;
+	this->A = this->X = this->Y = 0;
+	this->A = this->X = this->Y = this->SP = this->PC /*= CPU::opcode = CPU::P*/ = 0x00;
+	this->negativeFlag = 0;
+	this->carryFlag = 0;
+	this->zeroFlag = 0;
+	this->bFlag1 = 0;
+	this->bFlag2 = 1;
+	this->decimalModeFlag = 0;
+	this->interruptDisable = 1;
+	this->overflowFlag = 0;
+	this->SP = 0xFD;
+	this->memory[0x4017] = this->memory[0x0000];
+	this->memory[0x4015] = this->memory[0x0000];
 	for (int i = 0; i < 16; i++) {
-		cpu->memory[0x04000 + i] = cpu->memory[0x0000];
+		this->memory[0x04000 + i] = this->memory[0x0000];
 	}
 }
 
-bool CPU::Reset(CPU* cpu) {
+bool CPU::Reset() {
 	//A, X, Y not affected
 	//S decremented by 3
 	//I flag set to true (ORed with $04)
 	//Internal memory unchanged
 	//APU mode in $4017 unchanged
 	//APU silenced ($4015 = 0)
-	cpu->SP -= 3;
+	this->SP -= 3;
 	//cpu->P & 0x00000F00 | cpu->memory[0x0004];
 	return true;
 }
 
 void CPU::loadGame(std::vector<BYTE> game) {
 	for (int i = 0; i < game.size(); i++)
-		this->memory[0x4020 + i] = game[i];
+		this->memory[0xC000 + i] = game[i];
+		//this->memory[0x4020 + i] = game[i];
+	//temporary start for program counter for nestest
+	this->PC = 0xC000;
 }
 
 bool CPU::isPageCrossed(BYTE A, BYTE B) {
@@ -50,10 +185,15 @@ bool CPU::isPageCrossed(BYTE A, BYTE B) {
 }
 
 void CPU::SetZN(BYTE A) {
+	//I think I should clear them if these conditions not met. Probably.
 	if (A == 0x0)
-		zeroFlag = true;
-	if ((A & 0xF0) == 0x1)
-		negativeFlag = true;
+		this->zeroFlag = 1;
+	else
+		this->zeroFlag = 0;
+	if ((A & 0x80) == 0x80)
+		this->negativeFlag = 1;
+	else
+		this->negativeFlag = 0;
 }
 
 //Load/Store Operations
@@ -76,7 +216,7 @@ void CPU::LDA(Instructions::Instruction I) {
 		//absolute
 		operand2 = this->memory[this->PC + 2];
 		//little endian so high memory address is in second byte.
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->A = this->memory[result];
 		//takes 3 cycles
 		this->idleCycles = 3;
@@ -87,7 +227,7 @@ void CPU::LDA(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->A = this->memory[result + this->X];
 		//takes 4 cycles, plus one if page crossed. I don't think the below check will work.
 		this->idleCycles = 4;
@@ -99,7 +239,7 @@ void CPU::LDA(Instructions::Instruction I) {
 	case 7:
 		//absolute, Y
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->A = this->memory[result + this->Y];
 		//4 cycles, plus one if page crossed
 		this->idleCycles = 4;
@@ -167,7 +307,7 @@ void CPU::LDX(Instructions::Instruction I) {
 		//absolute
 		operand2 = this->memory[this->PC + 2];
 		//little endian so high memory address is in second byte.
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->X = this->memory[result];
 		//takes 3 cycles
 		this->idleCycles = 3;
@@ -178,7 +318,7 @@ void CPU::LDX(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->X = this->memory[result + this->X];
 		//takes 4 cycles, plus one if page crossed.
 		this->idleCycles = 4;
@@ -190,7 +330,7 @@ void CPU::LDX(Instructions::Instruction I) {
 	case 7:
 		//absolute, Y
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->X = this->memory[result + this->Y];
 		//4 cycles, plus one if page crossed
 		this->idleCycles = 4;
@@ -258,7 +398,7 @@ void CPU::LDY(Instructions::Instruction I) {
 		//absolute
 		operand2 = this->memory[this->PC + 2];
 		//little endian so high memory address is in second byte.
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->Y = this->memory[result];
 		//takes 3 cycles
 		this->idleCycles = 3;
@@ -269,7 +409,7 @@ void CPU::LDY(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->Y = this->memory[result + this->X];
 		//takes 4 cycles, plus one if page crossed.
 		this->idleCycles = 4;
@@ -281,7 +421,7 @@ void CPU::LDY(Instructions::Instruction I) {
 	case 7:
 		//absolute, Y
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->Y = this->memory[result + this->Y];
 		//4 cycles, plus one if page crossed
 		this->idleCycles = 4;
@@ -339,7 +479,7 @@ void CPU::STA(Instructions::Instruction I) {
 		//absolute
 		operand2 = this->memory[this->PC + 2];
 		//little endian so high memory address is in second byte.
-		result = (operand2 >> 8) + operand;
+		result = (operand2 >> 8) | operand;
 		this->memory[result] = this->A;
 		//takes 4 cycles
 		this->idleCycles = 4;
@@ -349,7 +489,7 @@ void CPU::STA(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result + this->X] = this->A;
 		//takes 4 cycles, plus one if page crossed.
 		this->idleCycles = 5;
@@ -358,7 +498,7 @@ void CPU::STA(Instructions::Instruction I) {
 	case 7:
 		//absolute, Y
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result + this->Y] = this->A;
 		//4 cycles, plus one if page crossed
 		this->idleCycles = 5;
@@ -408,7 +548,7 @@ void CPU::STX(Instructions::Instruction I) {
 		//absolute
 		operand2 = this->memory[this->PC + 2];
 		//little endian so high memory address is in second byte.
-		result = (operand2 >> 8) + operand;
+		result = (operand2 >> 8) | operand;
 		this->memory[result] = this->X;
 		//takes 4 cycles
 		this->idleCycles = 4;
@@ -418,7 +558,7 @@ void CPU::STX(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result + this->X] = this->X;
 		//takes 4 cycles, plus one if page crossed.
 		this->idleCycles = 5;
@@ -427,7 +567,7 @@ void CPU::STX(Instructions::Instruction I) {
 	case 7:
 		//absolute, Y
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result + this->Y] = this->X;
 		//4 cycles, plus one if page crossed
 		this->idleCycles = 5;
@@ -477,7 +617,7 @@ void CPU::STY(Instructions::Instruction I) {
 		//absolute
 		operand2 = this->memory[this->PC + 2];
 		//little endian so high memory address is in second byte.
-		result = (operand2 >> 8) + operand;
+		result = (operand2 >> 8) | operand;
 		this->memory[result] = this->Y;
 		//takes 4 cycles
 		this->idleCycles = 4;
@@ -487,7 +627,7 @@ void CPU::STY(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result + this->X] = this->Y;
 		this->idleCycles = 5;
 		this->PC += 3;
@@ -495,7 +635,7 @@ void CPU::STY(Instructions::Instruction I) {
 	case 7:
 		//absolute, Y
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result + this->Y] = this->Y;
 		//4 cycles, plus one if page crossed
 		this->idleCycles = 5;
@@ -599,7 +739,9 @@ void CPU::PHP(Instructions::Instruction I) {
 	if (I.mode != 3)
 		return;
 	BYTE P;
-	P = (carryFlag >> 0) + (zeroFlag >> 1) + (interruptDisable >> 2) + (decimalModeFlag >> 3) + (bFlag1 >> 4) + (bFlag2 >> 5) + (overflowFlag >> 6) + (negativeFlag >> 7);
+	//bit 5 is always set and bit 4 is always set to 1 by php
+	//will differ from nestest as the nestest never sets bit 4 (bflag1)
+	P = (carryFlag << 0) + (zeroFlag << 1) + (interruptDisable << 2) + (decimalModeFlag << 3) + (1 << 4) + (1 << 5) + (overflowFlag << 6) + (negativeFlag << 7);
 	this->stack[this->SP] = P;
 	this->idleCycles = 3;
 	this->PC += 1;
@@ -612,6 +754,7 @@ void CPU::PLA(Instructions::Instruction I) {
 	this->A = this->stack[this->SP];
 	this->idleCycles = 4;
 	this->PC += 1;
+	SetZN(this->A);
 }
 void CPU::PLP(Instructions::Instruction I) {
 	if (I.mode != 3)
@@ -619,14 +762,15 @@ void CPU::PLP(Instructions::Instruction I) {
 	this->SP += 1;
 	BYTE P;
 	P = this->stack[this->SP];
-	carryFlag = (P & 0x00000001);
-	zeroFlag = (P & 0x00000010);
-	interruptDisable = (P & 0x00000100);
-	decimalModeFlag = (P & 0x00001000);
-	bFlag1 = (P & 0x00010000);
-	bFlag2 = (P & 0x00100000);
-	overflowFlag = (P & 0x01000000);
-	negativeFlag = (P & 0x10000000);
+	carryFlag = (P & 0x01 >> 0);
+	zeroFlag = (P & 0x02) >> 1;
+	interruptDisable = (P & 0x04) >> 2;
+	decimalModeFlag = (P & 0x08) >> 3;
+	//plp ignores bits 4 and 5
+	//bFlag1 = (P & 0x10) >> 4;
+	//bFlag2 = (P & 0x20) >> 5;
+	overflowFlag = (P & 0x40) >> 6;
+	negativeFlag = (P & 0x80) >> 7;
 	this->idleCycles = 4;
 	this->PC += 1;
 }
@@ -647,7 +791,7 @@ void CPU::AND(Instructions::Instruction I) {
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->A = this->memory[result] & this->A;
 		this->idleCycles = 4;
 		this->PC += 2;
@@ -656,7 +800,7 @@ void CPU::AND(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->A = this->memory[result + this->X] & this->A;
 		this->idleCycles = 4;
 		//for page crossed do I need the below or do I need this->memory[result], this->memory[result + this->X]. This would need to be replaced at every absolute switch
@@ -668,7 +812,7 @@ void CPU::AND(Instructions::Instruction I) {
 	case 7:
 		//absolute, Y
 		operand2 = this->memory[this->PC + 2];
-		result = (operand << 8) + operand;
+		result = (operand << 8) | operand;
 		this->A = (this->memory[result] + this->Y) & this->A;
 		this->idleCycles = 4;
 		if (isPageCrossed(result, result + this->X))
@@ -729,7 +873,7 @@ void CPU::EOR(Instructions::Instruction I) {
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->A = this->A ^ result;
 		this->idleCycles = 4;
 		this->PC += 3;
@@ -738,7 +882,7 @@ void CPU::EOR(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->A = this->A ^ (result + this->X);
 		this->idleCycles = 4;
 		if (isPageCrossed(result, result + this->X))
@@ -749,7 +893,7 @@ void CPU::EOR(Instructions::Instruction I) {
 	case 7:
 		//absolute, Y
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->A = this->A ^ (result + this->Y);
 		this->idleCycles = 4;
 		if (isPageCrossed(result, result + this->Y))
@@ -810,7 +954,7 @@ void CPU::ORA(Instructions::Instruction I) {
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->A = this->A | result;
 		this->idleCycles = 4;
 		this->PC += 3;
@@ -819,7 +963,7 @@ void CPU::ORA(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->A = this->A | (result + this->X);
 		this->idleCycles = 4;
 		if (isPageCrossed(result, result + this->X))
@@ -830,7 +974,7 @@ void CPU::ORA(Instructions::Instruction I) {
 	case 7:
 		//absolute, Y
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->A = this->A | (result + this->Y);
 		this->idleCycles = 4;
 		if (isPageCrossed(result, result + this->Y))
@@ -885,14 +1029,14 @@ void CPU::BIT(Instructions::Instruction I) {
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		if ((this->A & result) == 0x00)
-			zeroFlag = 0;
-		else zeroFlag = 1;
-		if ((result & 0x01000000) == 0x00)
+			zeroFlag = 1;
+		else zeroFlag = 0;
+		if ((result & 0x70) == 0x00)
 			overflowFlag = 0;
 		else overflowFlag = 1;
-		if ((result & 0x10000000) == 0x00)
+		if ((result & 0x80) == 0x00)
 			negativeFlag = 0;
 		else negativeFlag = 1;
 		this->idleCycles = 4;
@@ -900,17 +1044,22 @@ void CPU::BIT(Instructions::Instruction I) {
 		break;
 	case 8:
 		//zero page.
-		if ((this->A & operand) == 0x00)
-			zeroFlag = 0;
-		else zeroFlag = 1;
-		if ((operand & 0x01000000) == 0x00)
+		operand2 = this->memory[operand];
+		if ((this->A & operand2) == 0x00)
+			zeroFlag = 1;
+		else zeroFlag = 0;
+		/*
+		if ((operand & 0x70) == 0x00)
 			overflowFlag = 0;
 		else
 			overflowFlag = 1;
-		if ((operand & 0x10000000) == 0x00)
+		if ((operand & 0x80) == 0x00)
 			negativeFlag = 0;
 		else
 			negativeFlag = 1;
+			*/
+		this->overflowFlag = (operand2 & 0x40);
+		this->negativeFlag = (operand2 & 0x80);
 		this->idleCycles = 3;
 		this->PC += 2;
 		break;
@@ -920,100 +1069,168 @@ void CPU::BIT(Instructions::Instruction I) {
 }
 
 //artithmetic
-//adc and sbc not done yet. Need to create algorithm for overflow flag
-//none of the arithmetic opcodes completed.
+//I think ADC and SBC work correctly but I may be mistaken. Will check with nestest
 void CPU::ADC(Instructions::Instruction I) {
 	BYTE operand = this->memory[this->PC + 1];
 	BYTE operand2;
 	unsigned short result;
+	bool tmp;
 	switch (I.mode) {
 	case 2:
 		//immediate
-		this->A = this->A + operand;
+		//overflow set if value is greater than signed 8 bit value, carry set if > unsigned
+		//processor does a xor on bits 6 and 7 of the result
+		/*
+		if ((this->A + operand) > 127)
+			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
+			*/
+		//if ((!(a^b)) & (a ^ c) & 0x80) where a + b = c. if this = 0x00 overflow flag is off, otherwise set.
+		tmp = this->carryFlag;
+		//if (((!(this->A ^ operand)) & (this->A ^ (this->A + operand + tmp)) & 0x80) == 0x00)
+		if (((!this->A ^ operand) & 0x80) && (this->A ^ (this->A + operand + tmp) & 0x80))
+			this->overflowFlag = 0;
+		else
+			this->overflowFlag = 1;
+		this->carryFlag = 0;
+		if ((this->A + operand + tmp) > 0xFF)
+			this->carryFlag = 1;
+		this->A = this->A + operand + tmp;
 		this->idleCycles = 2;
 		this->PC += 2;
 		SetZN(this->A);
-		if (negativeFlag == 1)
-			carryFlag = 1;
+		//this->carryFlag = 0;
+		//if (this->overflowFlag == 1)
+			//this->carryFlag = 1;
 		break;
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 >> 8) + operand;
-		this->A = this->A + result;
+		result = (operand2 >> 8) | operand;
+		if ((this->A + this->memory[result]) > 127)
+			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
+		this->A = this->A + this->memory[result];
 		this->idleCycles = 4;
 		this->PC += 3;
 		SetZN(this->A);
-		if (negativeFlag == 1)
-			carryFlag = 1;
+		if(this->carryFlag == 1)
+			this->A += 1;
+		this->carryFlag = 0;
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
 		break;
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 >> 8) + operand;
-		this->A = this->A + (this->X + result);
+		result = (operand2 >> 8) | operand;
+		if ((this->A + this->memory[result] > 127))
+			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
+		this->A = this->A + this->memory[result + this->X];
 		this->idleCycles = 4;
 		if (isPageCrossed(result, result + this->X))
 			this->idleCycles += 1;
 		this->PC += 3;
 		SetZN(this->A);
-		if (negativeFlag == 1)
-			carryFlag = 1;
+		if (this->carryFlag == 1)
+			this->A += 1;
+		this->carryFlag = 0;
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
 		break;
 	case 7:
 		//absolute, Y
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 >> 8) + operand;
-		this->A = this->A + (this->Y + result);
+		result = (operand2 >> 8) | operand;
+		if ((this->A + this->memory[result]) > 127)
+			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
+		this->A = this->A + this->memory[this->Y + result];
 		this->idleCycles = 4;
 		if (isPageCrossed(result, result + this->Y))
 			this->idleCycles += 1;
 		this->PC += 3;
 		SetZN(this->A);
-		if (negativeFlag == 1)
-			carryFlag = 1;
+		if (this->carryFlag == 1)
+			this->A += 1;
+		this->carryFlag = 0;
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
 		break;
 	case 8:
 		//zero page. wraparound if > 0xFF
 		if (operand > 0xFF)
 			operand -= 0xFF;
-		this->A = this->A + operand;
+		if ((this->A + this->memory[operand]) > 127)
+			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
+		this->A = this->A + this->memory[operand];
 		this->idleCycles = 3;
 		this->PC += 2;
 		SetZN(this->A);
-		if (negativeFlag == 1)
-			carryFlag = 1;
+		if (this->carryFlag == 1)
+			this->A += 1;
+		this->carryFlag = 0;
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
 		break;
 	case 9:
 		//zero page, X
 		if ((operand + this->X) > 0xFF)
 			operand = (operand + this->X) - 0xFF;
-		this->A = this->A + operand;
+		if ((this->A + this->memory[operand]) > 127)
+			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
+		this->A = this->A + this->memory[operand];
 		this->idleCycles = 4;
 		this->PC += 2;
 		SetZN(this->A);
-		if (negativeFlag == 1)
-			carryFlag = 1;
+		if (this->carryFlag == 1)
+			this->A += 1;
+		this->carryFlag = 0;
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
 		break;
 	case 12:
 		//indirect, X
+		if ((this->A + this->memory[operand + this->X]) > 127)
+			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
 		this->A = this->memory[operand + this->X] + this->A;
 		this->idleCycles = 6;
 		this->PC += 2;
 		SetZN(this->A);
-		if (negativeFlag == 1)
-			carryFlag = 1;
+		if (this->carryFlag == 1)
+			this->A += 1;
+		this->carryFlag = 0;
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
 		break;
 	case 13:
 		//indirect, Y
+		if ((this->A + this->memory[operand] + this->Y) > 127)
+			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
 		this->A = (this->memory[operand] + this->Y) + this->A;
 		this->idleCycles = 5;
 		if (isPageCrossed((this->memory[operand] + this->Y), (this->memory[operand])))
 			this->idleCycles += 1;
 		this->PC += 2;
 		SetZN(this->A);
-		if (negativeFlag == 1)
-			carryFlag = 1;
+		if (this->carryFlag == 1)
+			this->A += 1;
+		this->carryFlag = 0;
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
 		break;
 	default:
 		break;
@@ -1026,28 +1243,106 @@ void CPU::SBC(Instructions::Instruction I) {
 	switch (I.mode) {
 	case 2:
 		//immediate
+		if ((this->A - operand) < -128)
+			this->overflowFlag = 1;
 		this->A = this->A - operand;
+		SetZN(this->A);
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
+		this->idleCycles = 2;
+		this->PC += 2;
 		break;
 	case 5:
 		//absolute
+		operand2 = this->memory[this->PC + 2];
+		result = (operand2 << 8) | operand;
+		if ((this->A - this->memory[result]) < -128)
+			this->overflowFlag = 1;
+		this->A = this->A - this->memory[result];
+		SetZN(this->A);
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
+		this->idleCycles = 4;
+		this->PC += 3;
 		break;
 	case 6:
 		//absolute, X
+		operand2 = this->memory[this->PC + 2];
+		result = (operand2 << 8) | operand;
+		if ((this->A - this->memory[result + this->X]) < -128)
+			this->overflowFlag = 1;
+		this->A = this->A - this->memory[result + this->X];
+		SetZN(this->A);
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
+		this->idleCycles = 4;
+		if (isPageCrossed(result, result + this->X))
+			this->idleCycles += 1;
+		this->PC += 3;
 		break;
 	case 7:
 		//absolute, Y
+		operand2 = this->memory[this->PC + 2];
+		result = (operand2 << 8) | operand;
+		if ((this->A - this->memory[result + this->Y]) < -128)
+			this->overflowFlag = 1;
+		this->A = this->A - this->memory[result + this->Y];
+		SetZN(this->A);
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
+		this->idleCycles = 4;
+		if (isPageCrossed(result, result + this->Y))
+			this->idleCycles += 1;
+		this->PC += 3;
 		break;
 	case 8:
 		//zero page
+		if (operand > 0xFF)
+			operand = operand - 0xFF;
+		if ((this->A - this->memory[operand]) < -128)
+			this->overflowFlag = 1;
+		this->A = this->A - this->memory[operand];
+		SetZN(this->A);
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
+		this->idleCycles = 3;
+		this->PC += 2;
 		break;
 	case 9:
 		//zero page, X
+		if ((operand + this->X) > 0xFF)
+			operand = (operand + this->X) - 0xFF;
+		if ((this->A - this->memory[operand + this->X]) < -128)
+			this->overflowFlag = 1;
+		this->A = this->A - this->memory[operand + this->X];
+		SetZN(this->A);
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
+		this->idleCycles = 3;
+		this->PC += 2;
 		break;
 	case 12:
 		//indirect, X
+		if ((this->A - this->memory[operand + this->X]) < -128)
+			this->overflowFlag = 1;
+		this->A = this->A - this->memory[operand + this->X];
+		SetZN(this->A);
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
+		this->idleCycles = 3;
+		this->PC += 2;
 		break;
 	case 13:
 		//indirect, Y
+		if ((this->A - this->memory[operand] + this->Y) < -128)
+			this->overflowFlag = 1;
+		this->A = this->A - (this->memory[operand] + this->Y);
+		SetZN(this->A);
+		if (this->overflowFlag == 1)
+			this->carryFlag = 1;
+		this->idleCycles = 3;
+		if (isPageCrossed(this->memory[operand], this->memory[operand] + this->Y))
+		this->PC += 2;
 		break;
 	default:
 		break;
@@ -1057,31 +1352,85 @@ void CPU::CMP(Instructions::Instruction I) {
 	BYTE operand = this->memory[this->PC + 1];
 	BYTE operand2;
 	unsigned short result;
-	//I believe set ZN(this->A - operand)
 	switch (I.mode) {
 	case 2:
 		//immediate
+		SetZN(this->A - operand);
+		if (this->A >= operand)
+			this->carryFlag = 1;
+		this->idleCycles = 2;
+		this->PC += 2;
 		break;
 	case 5:
 		//absolute
+		operand2 = this->memory[this->PC + 2];
+		result = (operand2 << 8) | operand;
+		SetZN(this->A - this->memory[result]);
+		if (this->A >= this->memory[result])
+			this->carryFlag = 1;
+		this->idleCycles = 4;
+		this->PC += 3;
 		break;
 	case 6:
 		//absolute, X
+		operand2 = this->memory[this->PC + 2];
+		result = (operand2 << 8) | operand;
+		SetZN(this->A - this->memory[result + this->X]);
+		if (this->A >= this->memory[result + this->X])
+			this->carryFlag = 1;
+		this->idleCycles = 4;
+		if (isPageCrossed(this->memory[result], this->memory[result + this->X]))
+			this->idleCycles += 1;
+		this->PC += 3;
 		break;
 	case 7:
 		//absolute, Y
+		operand2 = this->memory[this->PC + 2];
+		result = (operand2 << 8) | operand;
+		result = this->memory[result + this->Y];
+		SetZN(this->A - result);
+		if (this->A >= this->memory[result + this->Y])
+			this->carryFlag = 1;
+		this->idleCycles = 4;
+		if (isPageCrossed(this->memory[result], this->memory[result + this->Y]))
+			this->idleCycles += 1;
+		this->PC += 3;
 		break;
 	case 8:
 		//zero page
+		SetZN(this->A - this->memory[operand]);
+		if (this->A >= this->memory[operand])
+			this->carryFlag = 1;
+		this->idleCycles = 3;
+		this->PC += 2;
 		break;
 	case 9:
 		//zero page, X
+		SetZN(this->A - this->memory[operand + this->X]);
+		if (this->A >= this->memory[operand + this->X])
+			this->carryFlag = 1;
+		this->idleCycles = 4;
+		this->PC += 2;
 		break;
 	case 12:
 		//indirect, X
+		operand2 = this->memory[operand + this->X];
+		SetZN(this->A - operand2);
+		if (this->A >= this->memory[operand2])
+			this->carryFlag = 1;
+		this->idleCycles = 6;
+		this->PC += 2;
 		break;
 	case 13:
 		//indirect, Y
+		operand2 = this->memory[operand] + this->Y;
+		SetZN(this->A - operand2);
+		if (this->A >= operand2)
+			this->carryFlag = 1;
+		this->idleCycles = 5;
+		if (isPageCrossed(this->memory[operand], this->memory[operand2]))
+			this->idleCycles += 1;
+		this->PC += 2;
 		break;
 	default:
 		break;
@@ -1094,27 +1443,29 @@ void CPU::CPX(Instructions::Instruction I) {
 	switch (I.mode) {
 	case 2:
 		//immediate
+		SetZN(this->X - operand);
+		if (this->X >= operand)
+			this->carryFlag = 1;
+		this->idleCycles = 2;
+		this->PC += 2;
 		break;
 	case 5:
 		//absolute
-		break;
-	case 6:
-		//absolute, X
-		break;
-	case 7:
-		//absolute, Y
+		operand2 = this->memory[this->PC + 2];
+		result = (operand2 << 8) | operand;
+		SetZN(this->X - this->memory[result]);
+		if (this->X >= this->memory[result])
+			this->carryFlag = 1;
+		this->idleCycles = 3;
+		this->PC += 2;
 		break;
 	case 8:
 		//zero page
-		break;
-	case 9:
-		//zero page, X
-		break;
-	case 12:
-		//indirect, X
-		break;
-	case 13:
-		//indirect, Y
+		SetZN(this->X - this->memory[operand]);
+		if (this->X >= this->memory[operand])
+			this->carryFlag = 1;
+		this->idleCycles = 4;
+		this->PC += 2;
 		break;
 	default:
 		break;
@@ -1127,27 +1478,29 @@ void CPU::CPY(Instructions::Instruction I) {
 	switch (I.mode) {
 	case 2:
 		//immediate
+		SetZN(this->Y - operand);
+		if (this->Y >= operand)
+			this->carryFlag = 1;
+		this->idleCycles = 2;
+		this->PC += 2;
 		break;
 	case 5:
 		//absolute
-		break;
-	case 6:
-		//absolute, X
-		break;
-	case 7:
-		//absolute, Y
+		operand2 = this->memory[this->PC + 2];
+		result = (operand2 << 8) | operand;
+		SetZN(this->Y - this->memory[result]);
+		if (this->Y >= this->memory[result])
+			this->carryFlag = 1;
+		this->idleCycles = 3;
+		this->PC += 3;
 		break;
 	case 8:
 		//zero page
-		break;
-	case 9:
-		//zero page, X
-		break;
-	case 12:
-		//indirect, X
-		break;
-	case 13:
-		//indirect, Y
+		SetZN(this->Y - this->memory[operand]);
+		if (this->Y >= this->memory[operand])
+			this->carryFlag = 1;
+		this->idleCycles = 4;
+		this->PC += 2;
 		break;
 	default:
 		break;
@@ -1163,7 +1516,7 @@ void CPU::INC(Instructions::Instruction I) {
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result] += 1;
 		this->idleCycles = 6;
 		this->PC += 3;
@@ -1172,7 +1525,7 @@ void CPU::INC(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result + this->X] += 1;
 		this->idleCycles = 7;
 		this->PC += 3;
@@ -1220,7 +1573,7 @@ void CPU::DEC(Instructions::Instruction I) {
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result] -= 1;
 		this->idleCycles = 6;
 		this->PC += 3;
@@ -1229,7 +1582,7 @@ void CPU::DEC(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result + this->X] -= 1;
 		this->idleCycles = 7;
 		this->PC += 3;
@@ -1287,7 +1640,7 @@ void CPU::ASL(Instructions::Instruction I) {
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		carryFlag = this->memory[result] & 0x80;
 		this->memory[result] = this->memory[result] << 1;
 		this->idleCycles = 6;
@@ -1297,7 +1650,7 @@ void CPU::ASL(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		carryFlag = this->memory[result] & 0x80;
 		this->memory[result + this->X] = this->memory[result + this->X] << 1;
 		this->idleCycles = 7;
@@ -1340,7 +1693,7 @@ void CPU::LSR(Instructions::Instruction I) {
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		carryFlag = this->memory[result] & 0x01;
 		this->memory[result] = this->memory[result] >> 1;
 		this->idleCycles = 6;
@@ -1350,7 +1703,7 @@ void CPU::LSR(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		carryFlag = this->memory[result] & 0x01;
 		this->memory[result + this->X] = this->memory[result + this->X] >> 1;
 		this->idleCycles = 7;
@@ -1396,7 +1749,7 @@ void CPU::ROL(Instructions::Instruction I) {
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		operand = carryFlag;
 		carryFlag = this->memory[result] & 0x80;
 		this->memory[result] = this->memory[result] << 1;
@@ -1408,7 +1761,7 @@ void CPU::ROL(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		operand = carryFlag;
 		carryFlag = this->memory[result] & 0x80;
 		this->memory[result + this->X] = this->memory[result + this->X] << 1;
@@ -1460,7 +1813,7 @@ void CPU::ROR(Instructions::Instruction I) {
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		operand = carryFlag;
 		carryFlag = this->memory[result] & 0x01;
 		this->memory[result] = this->memory[result] << 1;
@@ -1472,7 +1825,7 @@ void CPU::ROR(Instructions::Instruction I) {
 	case 6:
 		//absolute, X
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		operand = carryFlag;
 		carryFlag = this->memory[result] & 0x80;
 		this->memory[result + this->X] = this->memory[result + this->X] << 1;
@@ -1515,12 +1868,12 @@ void CPU::JMP(Instructions::Instruction I) {
 	case 5:
 		//absolute
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
-		this->stack[this->SP] = this->PC;
-		this->SP--;
+		result = (operand2 << 8) | operand;
+		//this->stack[this->SP] = this->PC;
+		//this->SP--;
 		this->PC = result;
 		this->idleCycles = 3;
-		this->PC += 3;
+		//this->PC += 3;
 		break;
 	case 11:
 		//indirect
@@ -1531,7 +1884,7 @@ void CPU::JMP(Instructions::Instruction I) {
 		this->stack[this->SP] = this->PC;
 		this->SP--;
 		operand2 = this->memory[this->PC + 2];
-		result = (operand2 << 8) + operand;
+		result = (operand2 << 8) | operand;
 		this->PC = this->memory[result];
 		this->idleCycles = 5;
 		this->PC += 3;
@@ -1546,22 +1899,33 @@ void CPU::JSR(Instructions::Instruction I) {
 	unsigned short result;
 	if (I.mode != 5)
 		return;
-	this->stack[this->SP] = this->PC - 1;
+	//this->PC or this->PC - 1? I think the minus one is due to incrementing the program counter at decoding, which I don't do, so I shouldn't do the - 1 here.
+	this->stack[this->SP] = (this->PC & 0x00FF);
+	this->SP--;
+	this->stack[this->SP] = ((this->PC & 0xFF00) >> 8);
 	this->SP--;
 	operand2 = this->memory[this->PC + 2];
-	result = (operand2 << 8) + operand;
-	this->PC = this->memory[result];
+	result = (operand2 << 8) | operand;
+	//this->PC = this->memory[result];
+	this->PC = result;
 	this->idleCycles = 6;
-	this->PC += 3;
+	//this->PC += 3;
 }
 void CPU::RTS(Instructions::Instruction I) {
-	BYTE operand = this->memory[this->PC + 1];
+	BYTE operand;
+	BYTE operand2;
+	unsigned short result;
 	if (I.mode != 3)
 		return;
-	this->SP += 1;
-	this->PC = this->stack[this->SP];
+	this->SP++;
+	operand = this->stack[this->SP];
+	this->SP++;
+	operand2 = this->stack[this->SP];
+	result = (operand << 8) | operand2;
+	this->PC = result;
 	this->idleCycles = 6;
 	this->PC += 1;
+	this->PC += 2;
 }
 
 //Branches
@@ -1578,6 +1942,7 @@ void CPU::BCC(Instructions::Instruction I) {
 	this->PC = this->PC + operand;
 	if (isPageCrossed(this->PC, this->PC - operand))
 		this->idleCycles += 1;
+	this->PC += 2;
 }
 void CPU::BCS(Instructions::Instruction I) {
 	if (I.mode != 4)
@@ -1592,6 +1957,7 @@ void CPU::BCS(Instructions::Instruction I) {
 	this->PC = this->PC + operand;
 	if (isPageCrossed(this->PC, this->PC - operand))
 		this->idleCycles += 1;
+	this->PC += 2;
 }
 void CPU::BEQ(Instructions::Instruction I) {
 	if (I.mode != 4)
@@ -1606,6 +1972,7 @@ void CPU::BEQ(Instructions::Instruction I) {
 	this->PC = this->PC + operand;
 	if (isPageCrossed(this->PC, this->PC - operand))
 		this->idleCycles += 1;
+	this->PC += 2;
 }
 void CPU::BMI(Instructions::Instruction I) {
 	if (I.mode != 4)
@@ -1620,6 +1987,7 @@ void CPU::BMI(Instructions::Instruction I) {
 	this->PC = this->PC + operand;
 	if (isPageCrossed(this->PC, this->PC - operand))
 		this->idleCycles += 1;
+	this->PC += 2;
 }
 void CPU::BNE(Instructions::Instruction I) {
 	if (I.mode != 4)
@@ -1634,6 +2002,7 @@ void CPU::BNE(Instructions::Instruction I) {
 	this->PC = this->PC + operand;
 	if (isPageCrossed(this->PC, this->PC - operand))
 		this->idleCycles += 1;
+	this->PC += 2;
 }
 void CPU::BPL(Instructions::Instruction I) {
 	if (I.mode != 4)
@@ -1648,6 +2017,7 @@ void CPU::BPL(Instructions::Instruction I) {
 	this->PC = this->PC + operand;
 	if (isPageCrossed(this->PC, this->PC - operand))
 		this->idleCycles += 1;
+	this->PC += 2;
 }
 void CPU::BVC(Instructions::Instruction I) {
 	if (I.mode != 4)
@@ -1662,6 +2032,7 @@ void CPU::BVC(Instructions::Instruction I) {
 	this->PC = this->PC + operand;
 	if (isPageCrossed(this->PC, this->PC - operand))
 		this->idleCycles += 1;
+	this->PC += 2;
 }
 void CPU::BVS(Instructions::Instruction I) {
 	if (I.mode != 4)
@@ -1676,6 +2047,7 @@ void CPU::BVS(Instructions::Instruction I) {
 	this->PC = this->PC + operand;
 	if (isPageCrossed(this->PC, this->PC - operand))
 		this->idleCycles += 1;
+	this->PC += 2;
 }
 
 //Status Flag Changes
@@ -1721,10 +2093,11 @@ void CPU::BRK(Instructions::Instruction I) {
 	if (I.mode != 3)
 		return;
 	BYTE P;
-	//add flags to byte.
-	//this->stack[this->SP] = P;
+	P = (carryFlag << 0) + (zeroFlag << 1) + (interruptDisable << 2) + (decimalModeFlag << 3) + (bFlag1 << 4) + (bFlag2 << 5) + (overflowFlag << 6) + (negativeFlag << 7);
+	this->stack[this->SP] = P;
 	this->SP -= 1;
-	//set break flag to 1
+	this->bFlag1 = 1;
+	this->bFlag2 = 1;
 	this->idleCycles = 7;
 	this->PC += 1;
 }
@@ -1739,8 +2112,14 @@ void CPU::RTI(Instructions::Instruction I) {
 	this->SP += 1;
 	BYTE P;
 	P = this->stack[this->SP];
-	negativeFlag = (P & 0x80);
-	overflowFlag = (P & 0x70);
+	this->negativeFlag = (P & 0x80);
+	this->overflowFlag = (P & 0x70);
+	this->bFlag2 = (P & 0x60);
+	this->bFlag1 = (P & 0x50);
+	this->decimalModeFlag = (P & 0x04);
+	this->interruptDisable = (P & 0x03);
+	this->zeroFlag = (P & 0x02);
+	this->carryFlag = (P & 0x01);
 	this->idleCycles = 6;
 	this->PC += 1;
 }
@@ -1752,7 +2131,7 @@ void CPU::Clock_Tick() {
 	//execute opcode
 	
 	//the 6502 is little endian (least sig bytes first)
-	//stack pointer counts down from 0xFF to 0x00 with no overflow protection
+	//stack pointer counts down from 0xFD to 0x00 with no overflow protection
 
 	//wait for clock ticks to simulate NES speed
 
@@ -1761,161 +2140,175 @@ void CPU::Clock_Tick() {
 		return;
 	}
 
-	this->opcode = this->memory[this->PC] & 0x00FF;
+	this->opcode = this->memory[this->PC];
 
-	inst = I.getInstruction(opcode);
+	//inst = I.getInstruction(opcode);
+	//I hate everything about this right now. Storing information in inst from the Instruction class, or setting inst.name = temp causes a complete meltdown for some reason.
+	std::string temp = _instructions[opcode];
+	inst.length = _InstructionLength[opcode];
+	inst.cycles = _InstructionCycles[opcode];
+	inst.mode = _InstructionMode[opcode];
+	inst.type = _InstructionType[opcode];
+
+	BYTE P;
+	P = (carryFlag << 0) + (zeroFlag << 1) + (interruptDisable << 2) + (decimalModeFlag << 3) + (bFlag1 << 4) + (bFlag2 << 5) + (overflowFlag << 6) + (negativeFlag << 7);
+
+
+	std::cout << std::hex << this->PC << " " << std::hex << unsigned(this->opcode) << " " << std::hex << this->memory[this->PC] << " " << std::hex << this->memory[this->PC + 1] << " A:" << std::hex << unsigned(this->A) << " X:" << std::hex << unsigned(this->X) << " Y:" << std::hex << unsigned(this->Y) << "  P:" << std::hex << unsigned(P) << " SP:" << std::hex  <<this->SP << " C:" << inst.cycles;
+	//if (inst.length > 2)
+		//std::cout << std::hex << this->memory[this->PC + 2];
+
+	std::cout << "\n";
 
 	switch (inst.type) {
 		//I hate this. Want to change later
 	case 1:
 		//load and store
-		if (inst.name == "LDA")
+		if (temp == "LDA")
 			LDA(inst);
-		if (inst.name == "LDX")
+		if (temp == "LDX")
 			LDX(inst);
-		if (inst.name == "LDY")
+		if (temp == "LDY")
 			LDY(inst);
-		if (inst.name == "STA")
+		if (temp == "STA")
 			STA(inst);
-		if (inst.name == "STX")
+		if (temp == "STX")
 			STX(inst);
-		if (inst.name == "STY")
+		if (temp == "STY")
 			STY(inst);
 		break;
 	case 2:
 		//register
-		if (inst.name == "TAX")
+		if (temp == "TAX")
 			TAX(inst);
-		if (inst.name == "TAY")
+		if (temp == "TAY")
 			TAY(inst);
-		if (inst.name == "TXA")
+		if (temp == "TXA")
 			TXA(inst);
-		if (inst.name == "TYA")
+		if (temp == "TYA")
 			TYA(inst);
 		break;
 	case 3:
 		//stack
-		if (inst.name == "TSX")
+		if (temp == "TSX")
 			TSX(inst);
-		if (inst.name == "TXS")
+		if (temp == "TXS")
 			TXS(inst);
-		if (inst.name == "PHA")
+		if (temp == "PHA")
 			PHA(inst);
-		if (inst.name == "PHP")
+		if (temp == "PHP")
 			PHP(inst);
-		if (inst.name == "PLA")
+		if (temp == "PLA")
 			PLA(inst);
-		if (inst.name == "PLP")
+		if (temp == "PLP")
 			PLP(inst);
 		break;
 	case 4:
 		//logical
-		if (inst.name == "AND")
+		if (temp == "AND")
 			AND(inst);
-		if (inst.name == "EOR")
+		if (temp == "EOR")
 			EOR(inst);
-		if (inst.name == "ORA")
+		if (temp == "ORA")
 			ORA(inst);
-		if (inst.name == "BIT")
+		if (temp == "BIT")
 			BIT(inst);
 		break;
 	case 5:
 		//arithmetic
-		if (inst.name == "ADC")
+		if (temp == "ADC")
 			ADC(inst);
-		if (inst.name == "SBC")
+		if (temp == "SBC")
 			SBC(inst);
-		if (inst.name == "CMP")
+		if (temp == "CMP")
 			CMP(inst);
-		if (inst.name == "CPX")
+		if (temp == "CPX")
 			CPX(inst);
-		if (inst.name == "CPY")
+		if (temp == "CPY")
 			CPY(inst);
 		break;
 	case 6:
 		//increment/decrement
-		if (inst.name == "INC")
+		if (temp == "INC")
 			INC(inst);
-		if (inst.name == "INX")
+		if (temp == "INX")
 			INX(inst);
-		if (inst.name == "INY")
+		if (temp == "INY")
 			INY(inst);
-		if (inst.name == "DEC")
+		if (temp == "DEC")
 			DEC(inst);
-		if (inst.name == "DEX")
+		if (temp == "DEX")
 			DEX(inst);
-		if (inst.name == "DEY")
+		if (temp == "DEY")
 			DEY(inst);
 		break;
 	case 7:
 		//shift
-		if (inst.name == "ASL")
+		if (temp == "ASL")
 			ASL(inst);
-		if (inst.name == "LSR")
+		if (temp == "LSR")
 			LSR(inst);
-		if (inst.name == "ROL")
+		if (temp == "ROL")
 			ROL(inst);
-		if (inst.name == "ROR")
+		if (temp == "ROR")
 			ROR(inst);
 		break;
 	case 8:
 		//jump
-		if (inst.name == "JMP")
+		if (temp == "JMP")
 			JMP(inst);
-		if (inst.name == "JSR")
+		if (temp == "JSR")
 			JSR(inst);
-		if (inst.name == "RTS")
+		if (temp == "RTS")
 			RTS(inst);
 		break;
 	case 9:
 		//branch
-		if (inst.name == "BCC")
+		if (temp == "BCC")
 			BCC(inst);
-		if (inst.name == "BCS")
+		if (temp == "BCS")
 			BCS(inst);
-		if (inst.name == "BEQ")
+		if (temp == "BEQ")
 			BEQ(inst);
-		if (inst.name == "BMI")
+		if (temp == "BMI")
 			BMI(inst);
-		if (inst.name == "BNE")
+		if (temp == "BNE")
 			BNE(inst);
-		if (inst.name == "BPL")
+		if (temp == "BPL")
 			BPL(inst);
-		if (inst.name == "BVC")
+		if (temp == "BVC")
 			BVC(inst);
-		if (inst.name == "BVS")
+		if (temp == "BVS")
 			BVS(inst);
 		break;
 	case 10:
 		//flags
-		if (inst.name == "CLC")
+		if (temp == "CLC")
 			CLC(inst);
-		if (inst.name == "CLD")
+		if (temp == "CLD")
 			CLD(inst);
-		if (inst.name == "CLI")
+		if (temp == "CLI")
 			CLI(inst);
-		if (inst.name == "CLV")
+		if (temp == "CLV")
 			CLV(inst);
-		if (inst.name == "SEC")
+		if (temp == "SEC")
 			SEC(inst);
-		if (inst.name == "SED")
+		if (temp == "SED")
 			SED(inst);
-		if (inst.name == "SEI")
+		if (temp == "SEI")
 			SEI(inst);
 		break;
 	case 11:
 		//system
-		if (inst.name == "BRK")
+		if (temp == "BRK")
 			BRK(inst);
-		if (inst.name == "NOP")
+		if (temp == "NOP")
 			NOP(inst);
-		if (inst.name == "RTI")
+		if (temp == "RTI")
 			RTI(inst);
 		break;
 	default:
 		break;
 	}
-
-	this->PC += 1;
-	std::cout << this->PC;
+	//this->PC += 1;
 }
