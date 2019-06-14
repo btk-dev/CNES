@@ -11,9 +11,9 @@ int _InstructionType[0x100] = {
 	  8,  5,  0,  0,  0,  5,  7,  0,  3,  5,  7,  0,  8,  5,  7,  0, //6
 	  9,  5,  0,  0,  0,  5,  7,  0,  10,  5,  0,  0,  0,  5,  7,  0, //7
 	  0,  1,  0,  0,  1,  1,  1,  0,  6,  0,  2,  0,  1,  1,  1,  0, //8
-	  9,  1,  0,  0,  1,  1,  1,  0,  2,  1,  2,  0,  0,  1,  0,  0, //9
+	  9,  1,  0,  0,  1,  1,  1,  0,  2,  1,  3,  0,  0,  1,  0,  0, //9
 	  1,  1,  1,  0,  1,  1,  1,  0,  2,  1,  2,  0,  1,  1,  1,  0, //A
-	  9,  1,  0,  0,  1,  1,  1,  0,  10,  1,  2,  0,  1,  1,  1,  0, //B
+	  9,  1,  0,  0,  1,  1,  1,  0,  10,  1,  3,  0,  1,  1,  1,  0, //B
 	  5,  5,  0,  0,  5,  5,  6,  0,  6,  5,  6,  0,  5,  5,  6,  0, //C
 	  9,  5,  0,  0,  0,  5,  6,  0,  10,  5,  0,  0,  0,  5,  6,  0, //D
 	  5,  5,  0,  0,  5,  5,  6,  0,  6,  5,  11,  0,  5,  5,  6,  0, //E
@@ -156,6 +156,10 @@ void CPU::Init() {
 	for (int i = 0; i < 16; i++) {
 		this->memory[0x04000 + i] = this->memory[0x0000];
 	}
+	this->memory[383] = 105;
+	this->memory[384] = 51;
+	for (int i = 0; i < 0xFF; i++)
+		this->stack[i] = 0;
 }
 
 bool CPU::Reset() {
@@ -548,7 +552,7 @@ void CPU::STX(Instructions::Instruction I) {
 		//absolute
 		operand2 = this->memory[this->PC + 2];
 		//little endian so high memory address is in second byte.
-		result = (operand2 >> 8) | operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result] = this->X;
 		//takes 4 cycles
 		this->idleCycles = 4;
@@ -1109,10 +1113,10 @@ void CPU::ADC(Instructions::Instruction I) {
 		operand2 = this->memory[this->PC + 2];
 		result = (operand2 >> 8) | operand;
 		tmp = this->carryFlag;
-		if (((!this->A ^ this->memory[result]) & 0x80) && (this->A ^ (this->A + this->memory[result] + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + this->memory[result] + tmp)) & (operand ^ (this->A + this->memory[result] + tmp)) & 0x80)
 			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
 		this->carryFlag = 0;
 		if ((this->A + operand + tmp) > 0xFF)
 			this->carryFlag = 1;
@@ -1130,10 +1134,10 @@ void CPU::ADC(Instructions::Instruction I) {
 		operand2 = this->memory[this->PC + 2];
 		result = (operand2 >> 8) | operand;
 		tmp = this->carryFlag;
-		if (((!this->A ^ this->memory[result + this->X]) & 0x80) && (this->A ^ (this->A + this->memory[result + this->X] + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + this->memory[result + this->X] + tmp)) & (operand ^ (this->A + this->memory[result + this->X] + tmp)) & 0x80)
 			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
 		this->carryFlag = 0;
 		if ((this->A + operand + tmp) > 0xFF)
 			this->carryFlag = 1;
@@ -1149,10 +1153,10 @@ void CPU::ADC(Instructions::Instruction I) {
 		operand2 = this->memory[this->PC + 2];
 		result = (operand2 >> 8) | operand;
 		tmp = this->carryFlag;
-		if (((!this->A ^ (this->memory[result] + this->Y)) & 0x80) && (this->A ^ (this->A + this->memory[result] + this->Y + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + this->memory[result] + this->Y + tmp)) & (operand ^ (this->A + this->memory[result] + this->Y + tmp)) & 0x80)
 			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
 		this->carryFlag = 0;
 		if ((this->A + operand + tmp) > 0xFF)
 			this->carryFlag = 1;
@@ -1168,10 +1172,10 @@ void CPU::ADC(Instructions::Instruction I) {
 		if (operand > 0xFF)
 			operand -= 0xFF;
 		tmp = this->carryFlag;
-		if (((!this->A ^ this->memory[operand]) & 0x80) && (this->A ^ (this->A + this->memory[operand] + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + this->memory[operand] + tmp)) & (operand ^ (this->A + this->memory[operand] + tmp)) & 0x80)
 			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
 		this->carryFlag = 0;
 		if ((this->A + operand + tmp) > 0xFF)
 			this->carryFlag = 1;
@@ -1185,10 +1189,10 @@ void CPU::ADC(Instructions::Instruction I) {
 		if ((operand + this->X) > 0xFF)
 			operand = (operand + this->X) - 0xFF;
 		tmp = this->carryFlag;
-		if (((!this->A ^ this->memory[operand]) & 0x80) && (this->A ^ (this->A + this->memory[operand] + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + this->memory[operand + this->X] + tmp)) & (operand ^ (this->A + this->memory[operand + this->X] + tmp)) & 0x80)
 			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
 		this->carryFlag = 0;
 		if ((this->A + operand + tmp) > 0xFF)
 			this->carryFlag = 1;
@@ -1200,10 +1204,10 @@ void CPU::ADC(Instructions::Instruction I) {
 	case 12:
 		//indirect, X
 		tmp = this->carryFlag;
-		if (((!this->A ^ this->memory[operand + this->X]) & 0x80) && (this->A ^ (this->A + this->memory[operand + this->X] + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + this->memory[operand + this->X] + tmp)) & (operand ^ (this->A + this->memory[operand + this->X] + tmp)) & 0x80)
 			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
 		this->carryFlag = 0;
 		if ((this->A + operand + tmp) > 0xFF)
 			this->carryFlag = 1;
@@ -1215,10 +1219,10 @@ void CPU::ADC(Instructions::Instruction I) {
 	case 13:
 		//indirect, Y
 		tmp = this->carryFlag;
-		if (((!this->A ^ (this->memory[operand] + this->Y)) & 0x80) && (this->A ^ (this->A + this->memory[operand] + this->Y + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + this->memory[operand] + this->Y + tmp)) & (operand ^ (this->A + this->memory[operand] + this->Y + tmp)) & 0x80)
 			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
 		this->carryFlag = 0;
 		if ((this->A + operand + tmp) > 0xFF)
 			this->carryFlag = 1;
@@ -1242,10 +1246,10 @@ void CPU::SBC(Instructions::Instruction I) {
 	case 2:
 		//immediate
 		tmp = this->carryFlag;
-		if (((!this->A ^ (255 - operand)) & 0x80) && (this->A ^ (this->A + (255 - operand) + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + (255 - operand) + tmp)) & ((255 - operand) ^ (this->A + (255 - operand) + tmp)) & 0x80)
 			this->overflowFlag = 1;
+		else
+			this->overflowFlag = 0;
 		//if ((this->A + (255 - operand) + tmp) > 0xFF)
 			//this->carryFlag = 1;
 		//if the number that is being subtracted from is bigger than the subtracted number then there is no borrow required.
@@ -1263,12 +1267,14 @@ void CPU::SBC(Instructions::Instruction I) {
 		operand2 = this->memory[this->PC + 2];
 		result = (operand2 << 8) | operand;
 		tmp = this->carryFlag;
-		if (((!this->A ^ (255 - this->memory[result])) & 0x80) && (this->A ^ (this->A + (255 - this->memory[result]) + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + (255 - this->memory[result]) + tmp)) & (operand ^ (this->A + (255 - this->memory[result]) + tmp)) & 0x80)
 			this->overflowFlag = 1;
-		if ((this->A + (255 - operand) + tmp) > 0xFF)
+		else
+			this->overflowFlag = 0;
+		if (this->A >= this->memory[result])
 			this->carryFlag = 1;
+		else
+			this->carryFlag = 0;
 		this->A = this->A + (255 - this->memory[result]) + tmp;
 		SetZN(this->A);
 		if (this->overflowFlag == 1)
@@ -1281,16 +1287,16 @@ void CPU::SBC(Instructions::Instruction I) {
 		operand2 = this->memory[this->PC + 2];
 		result = (operand2 << 8) | operand;
 		tmp = this->carryFlag;
-		if (((!this->A ^ (255 - this->memory[result + this->X])) & 0x80) && (this->A ^ (this->A + (255 - this->memory[result + this->X]) + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + (255 - this->memory[result + this->X]) + tmp)) & (operand ^ (this->A + (255 - this->memory[result + this->X]) + tmp)) & 0x80)
 			this->overflowFlag = 1;
-		if ((this->A + (255 - operand) + tmp) > 0xFF)
+		else
+			this->overflowFlag = 0;
+		if (this->A >= this->memory[result + this->X])
 			this->carryFlag = 1;
+		else
+			this->carryFlag = 0;
 		this->A = this->A - this->memory[result + this->X] + tmp;
 		SetZN(this->A);
-		if (this->overflowFlag == 1)
-			this->carryFlag = 1;
 		this->idleCycles = 4;
 		if (isPageCrossed(result, result + this->X))
 			this->idleCycles += 1;
@@ -1301,12 +1307,14 @@ void CPU::SBC(Instructions::Instruction I) {
 		operand2 = this->memory[this->PC + 2];
 		result = (operand2 << 8) | operand;
 		tmp = this->carryFlag;
-		if (((!this->A ^ (255 - (this->memory[result] + this->Y))) & 0x80) && (this->A ^ (this->A + (255 - this->memory[result] + this->Y) + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + (255 - this->memory[result] + this->Y) + tmp)) & (operand ^ (this->A + (255 - this->memory[result] + this->Y) + tmp)) & 0x80)
 			this->overflowFlag = 1;
-		if ((this->A + (255 - operand) + tmp) > 0xFF)
+		else
+			this->overflowFlag = 0;
+		if (this->A >= (this->memory[result] + this->Y))
 			this->carryFlag = 1;
+		else
+			this->carryFlag = 0;
 		this->A = this->A - this->memory[result + this->Y] + tmp;
 		SetZN(this->A);
 		this->idleCycles = 4;
@@ -1319,12 +1327,14 @@ void CPU::SBC(Instructions::Instruction I) {
 		if (operand > 0xFF)
 			operand = operand - 0xFF;
 		tmp = this->carryFlag;
-		if (((!this->A ^ (255 - this->memory[operand])) & 0x80) && (this->A ^ (this->A + (255 - this->memory[operand]) + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + (255 - this->memory[operand]) + tmp)) & (operand ^ (this->A + (255 - this->memory[operand]) + tmp)) & 0x80)
 			this->overflowFlag = 1;
-		if ((this->A + (255 - operand) + tmp) > 0xFF)
+		else
+			this->overflowFlag = 0;
+		if (this->A >= this->memory[operand])
 			this->carryFlag = 1;
+		else
+			this->carryFlag = 0;
 		this->A = this->A - this->memory[operand];
 		SetZN(this->A);
 		this->idleCycles = 3;
@@ -1335,12 +1345,14 @@ void CPU::SBC(Instructions::Instruction I) {
 		if ((operand + this->X) > 0xFF)
 			operand = (operand + this->X) - 0xFF;
 		tmp = this->carryFlag;
-		if (((!this->A ^ (255 - this->memory[operand + this->X])) & 0x80) && (this->A ^ (this->A + (255 - this->memory[operand + this->X]) + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + (255 - this->memory[operand] + this->X) + tmp)) & (operand ^ (this->A + (255 - this->memory[operand + this->X]) + tmp)) & 0x80)
 			this->overflowFlag = 1;
-		if ((this->A + (255 - operand) + tmp) > 0xFF)
+		else
+			this->overflowFlag = 0;
+		if (this->A >= this->memory[operand])
 			this->carryFlag = 1;
+		else
+			this->carryFlag = 0;
 		this->A = this->A - this->memory[operand + this->X];
 		SetZN(this->A);
 		this->idleCycles = 3;
@@ -1349,12 +1361,14 @@ void CPU::SBC(Instructions::Instruction I) {
 	case 12:
 		//indirect, X
 		tmp = this->carryFlag;
-		if (((!this->A ^ (255 - this->memory[operand + this->X])) & 0x80) && (this->A ^ (this->A + (255 - this->memory[operand + this->X]) + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + (255 - this->memory[operand + this->X]) + tmp)) & (operand ^ (this->A + (255 - this->memory[operand + this->X]) + tmp)) & 0x80)
 			this->overflowFlag = 1;
-		if ((this->A + (255 - operand) + tmp) > 0xFF)
+		else
+			this->overflowFlag = 0;
+		if (this->A >= this->memory[operand + this->X])
 			this->carryFlag = 1;
+		else
+			this->carryFlag = 0;
 		this->A = this->A - this->memory[operand + this->X];
 		SetZN(this->A);
 		this->idleCycles = 3;
@@ -1363,12 +1377,14 @@ void CPU::SBC(Instructions::Instruction I) {
 	case 13:
 		//indirect, Y
 		tmp = this->carryFlag;
-		if (((!this->A ^ (255 - (this->memory[operand] + this->Y))) & 0x80) && (this->A ^ (this->A + (255 - this->memory[operand] + this->Y) + tmp) & 0x80))
-			this->overflowFlag = 0;
-		else
+		if ((this->A ^ (this->A + (255 - this->memory[operand] + this->Y) + tmp)) & (operand ^ (this->A + (255 - this->memory[operand] + this->Y) + tmp)) & 0x80)
 			this->overflowFlag = 1;
-		if ((this->A + (255 - operand) + tmp) > 0xFF)
+		else
+			this->overflowFlag = 0;
+		if (this->A >= (this->memory[operand] + this->Y))
 			this->carryFlag = 1;
+		else
+			this->carryFlag = 0;
 		this->A = this->A - (this->memory[operand] + this->Y);
 		SetZN(this->A);
 		this->idleCycles = 3;
@@ -1940,8 +1956,12 @@ void CPU::JMP(Instructions::Instruction I) {
 		//In this case fetches the LSB from $xxFF as expected but takes the MSB from $xx00. 
 		//This is fixed in some later chips like the 65SC02 so for compatibility always ensure the indirect vector is not at the end of the page.
 		//the error is not implemented yet.
-		this->stack[this->SP] = this->PC;
+		/* dont think I need to save jmp to stack
+		this->stack[this->SP] = (this->PC & 0x00FF);
 		this->SP--;
+		this->stack[this->SP] = ((this->PC & 0xFF00) >> 8);
+		this->SP--;
+		*/
 		operand2 = this->memory[this->PC + 2];
 		result = (operand2 << 8) | operand;
 		this->PC = this->memory[result];
@@ -1959,11 +1979,13 @@ void CPU::JSR(Instructions::Instruction I) {
 	if (I.mode != 5)
 		return;
 	//this->PC or this->PC - 1? I think the minus one is due to incrementing the program counter at decoding, which I don't do, so I shouldn't do the - 1 here.
-	this->stack[this->SP] = (this->PC & 0x00FF);
-	this->SP--;
+	operand2 = this->memory[this->PC + 2];
+	//this->PC--;
+	this->PC += 2;
 	this->stack[this->SP] = ((this->PC & 0xFF00) >> 8);
 	this->SP--;
-	operand2 = this->memory[this->PC + 2];
+	this->stack[this->SP] = (this->PC & 0x00FF);
+	this->SP--;
 	result = (operand2 << 8) | operand;
 	//this->PC = this->memory[result];
 	this->PC = result;
@@ -1980,11 +2002,12 @@ void CPU::RTS(Instructions::Instruction I) {
 	operand = this->stack[this->SP];
 	this->SP++;
 	operand2 = this->stack[this->SP];
-	result = (operand << 8) | operand2;
+	result = (operand2 << 8) | operand;
 	this->PC = result;
 	this->idleCycles = 6;
-	this->PC += 1;
-	this->PC += 2;
+	this->PC++;
+	//this->PC += 1;
+	//this->PC += 2;
 }
 
 //Branches
@@ -2369,5 +2392,17 @@ void CPU::Clock_Tick() {
 	default:
 		break;
 	}
+	/*
+	//for debugging purposes
+	std::cout << "Stack pointer +";
+	for (int i = 0; i < 8; i++) {
+		std::cout << std::hex << this->stack[SP + i] << " ";
+	}
+	std::cout << "\nStack Pointer -";
+	for (int i = 0; i < 8; i++) {
+		std::cout << std::hex << this->stack[SP - i] << " ";
+	}
+	std::cout << "\n";
+	*/
 	//this->PC += 1;
 }
