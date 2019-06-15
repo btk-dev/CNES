@@ -4,7 +4,7 @@ int _InstructionType[0x100] = {
 	//0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
 	  11,  4,  0,  0,  0,  4,  7,  0,  3,  4,  7,  0,  0,  4,  7,  0, //0
 	  9,  4,  0,  0,  0,  4,  7,  0,  10,  4,  0,  0,  0,  4,  7,  0, //1
-	  8,  4,  0,  0,  4,  4,  7,  0,  3,  4,  4,  0,  4,  4,  7,  0, //2
+	  8,  4,  0,  0,  4,  4,  7,  0,  3,  4,  7,  0,  4,  4,  7,  0, //2
 	  9,  4,  0,  0,  0,  4,  7,  0,  10,  4,  0,  0,  0,  4,  7,  0, //3
 	  11,  4,  0,  0,  0,  4,  7,  0,  3,  4,  7,  0,  8,  4,  7,  0, //4
 	  9,  4,  0,  0,  0,  4,  7,  0,  10,  4,  0,  0,  0,  4,  7,  0, //5
@@ -273,17 +273,26 @@ void CPU::LDA(Instructions::Instruction I) {
 		break;
 	case 12:
 		//(indirect, X)
-		this->A = this->memory[operand + this->X];
+		operand += this->X;
+		if (operand> 0xFF)
+			operand = operand - 0xFF;
+		result = operand + 1;
+		if (result > 0xFF)
+			result = result - 0xFF - 1;
+		result = this->memory[operand] | (this->memory[result] << 8);
+		this->A = this->memory[result];
 		this->idleCycles = 6;
 		this->PC += 2;
 		SetZN(this->A);
 		break;
 	case 13:
 		//(indirect), Y
-		this->A = this->memory[operand] + this->Y;
+		operand2 = operand + 1;
+		result = this->memory[operand] | (this->memory[operand2] << 8);
+		this->A = this->memory[result] + this->Y;
 		//extra cycle if page cross
 		this->idleCycles = 5;
-		if (isPageCrossed(this->memory[operand], this->memory[operand] + Y))
+		if (isPageCrossed(operand, operand2))
 			this->idleCycles += 1;
 		this->PC += 2;
 		SetZN(this->A);
@@ -364,17 +373,26 @@ void CPU::LDX(Instructions::Instruction I) {
 		break;
 	case 12:
 		//(indirect, X)
-		this->A = this->memory[operand + this->X];
+		operand += this->X;
+		if (operand > 0xFF)
+			operand = operand - 0xFF;
+		result = operand + 1;
+		if (result > 0xFF)
+			result = result - 0xFF - 1;
+		result = this->memory[operand] | (this->memory[result] << 8);
+		this->X = this->memory[result];
 		this->idleCycles = 6;
 		this->PC += 2;
 		SetZN(this->X);
 		break;
 	case 13:
 		//(indirect), Y
-		this->A = this->memory[operand] + this->Y;
+		operand2 = operand + 1;
+		result = this->memory[operand] | (this->memory[operand2] << 8);
+		this->X = this->memory[result] + this->Y;
 		//extra cycle if page cross. Yet to add
 		this->idleCycles = 5;
-		if (isPageCrossed(this->memory[operand], this->memory[operand] + Y))
+		if (isPageCrossed(operand, operand2))
 			this->idleCycles += 1;
 		this->PC += 2;
 		SetZN(this->X);
@@ -455,17 +473,26 @@ void CPU::LDY(Instructions::Instruction I) {
 		break;
 	case 12:
 		//(indirect, X)
-		this->Y = this->memory[operand + this->X];
+		operand += this->X;
+		if (operand > 0xFF)
+			operand = operand - 0xFF;
+		result = operand + 1;
+		if (result > 0xFF)
+			result = result - 0xFF - 1;
+		result = this->memory[operand] | (this->memory[result] << 8);
+		this->Y = this->memory[result];
 		this->idleCycles = 6;
 		this->PC += 2;
 		SetZN(this->Y);
 		break;
 	case 13:
 		//(indirect), Y
-		this->Y = this->memory[operand] + this->Y;
+		operand2 = operand + 1;
+		result = this->memory[operand] | (this->memory[operand2] << 8);
+		this->Y = this->memory[result] + this->Y;
 		//extra cycle if page cross
 		this->idleCycles = 5;
-		if (isPageCrossed(this->memory[operand], this->memory[operand] + Y))
+		if (isPageCrossed(operand, operand2))
 			this->idleCycles += 1;
 		this->PC += 2;
 		SetZN(this->Y);
@@ -483,7 +510,7 @@ void CPU::STA(Instructions::Instruction I) {
 		//absolute
 		operand2 = this->memory[this->PC + 2];
 		//little endian so high memory address is in second byte.
-		result = (operand2 >> 8) | operand;
+		result = (operand2 << 8) | operand;
 		this->memory[result] = this->A;
 		//takes 4 cycles
 		this->idleCycles = 4;
@@ -527,14 +554,23 @@ void CPU::STA(Instructions::Instruction I) {
 		break;
 	case 12:
 		//(indirect, X)
-		this->memory[operand + this->X] = this->A;
+		operand += this->X;
+		if (operand > 0xFF)
+			operand = operand - 0xFF;
+		result = operand + 1;
+		if (result > 0xFF)
+			result = result - 0xFF - 1;
+		result = this->memory[operand] | (this->memory[result] << 8);
+		this->memory[result] = this->A;
 		this->idleCycles = 6;
 		this->PC += 2;
 		break;
 	case 13:
 		//(indirect), Y
-		operand2 = this->memory[operand] + this->Y;
-		this->memory[operand2] = this->A;
+		operand2 = operand + 1;
+		result = this->memory[operand] | (this->memory[operand2] << 8);
+		result = this->memory[result] + this->Y;
+		this->memory[result] = this->A;
 		//extra cycle if page cross
 		this->idleCycles = 5;
 		this->PC += 2;
@@ -596,14 +632,23 @@ void CPU::STX(Instructions::Instruction I) {
 		break;
 	case 12:
 		//(indirect, X)
-		this->memory[operand + this->X] = this->X;
+		operand += this->X;
+		if (operand > 0xFF)
+			operand = operand - 0xFF;
+		result = operand + 1;
+		if (result > 0xFF)
+			result = result - 0xFF - 1;
+		result = this->memory[operand] | (this->memory[result] << 8);
+		this->memory[result + this->X] = this->X;
 		this->idleCycles = 6;
 		this->PC += 2;
 		break;
 	case 13:
 		//(indirect), Y
-		operand2 = this->memory[operand] + this->Y;
-		this->memory[operand2] = this->X;
+		operand2 = operand + 1;
+		result = this->memory[operand] | (this->memory[operand2] << 8);
+		result = this->memory[result] + this->Y;
+		this->memory[result] = this->X;
 		//extra cycle if page cross
 		this->idleCycles = 5;
 		this->PC += 2;
@@ -664,16 +709,27 @@ void CPU::STY(Instructions::Instruction I) {
 		break;
 	case 12:
 		//(indirect, X)
-		this->memory[operand + this->X] = this->Y;
+		operand += this->X;
+		if (operand > 0xFF)
+			operand = operand - 0xFF;
+		result = operand + 1;
+		if (result > 0xFF)
+			result = result - 0xFF - 1;
+		result = this->memory[operand] | (this->memory[result] << 8);
+		this->memory[result + this->X] = this->Y;
 		this->idleCycles = 6;
 		this->PC += 2;
 		break;
 	case 13:
 		//(indirect), Y
-		operand2 = this->memory[operand] + this->Y;
-		this->memory[operand2] = this->Y;
+		operand2 = operand + 1;
+		result = this->memory[operand] | (this->memory[operand2] << 8);
+		result = this->memory[result] + this->Y;
+		this->memory[result] = this->Y;
 		//extra cycle if page cross
 		this->idleCycles = 5;
+		if (isPageCrossed(operand, operand2))
+			this->idleCycles++;
 		this->PC += 2;
 		break;
 	default:
@@ -844,16 +900,25 @@ void CPU::AND(Instructions::Instruction I) {
 		break;
 	case 12:
 		//(indirect, X)
-		this->A = (this->memory[(operand + this->X)]) & this->A;
+		operand += this->X;
+		if (operand > 0xFF)
+			operand = operand - 0xFF;
+		result = operand + 1;
+		if (result > 0xFF)
+			result = result - 0xFF - 1;
+		result = this->memory[operand] | (this->memory[result] << 8);
+		this->A = this->memory[result] & this->A;
 		this->idleCycles = 6;
 		this->PC += 2;
 		SetZN(this->A);
 		break;
 	case 13:
 		//(indirect), Y
-		this->A = (this->memory[operand] + this->Y) & this->A;
+		operand2 = operand + 1;
+		result = this->memory[operand] | (this->memory[operand2] << 8);
+		this->A = (this->memory[result] + this->Y) & this->A;
 		this->idleCycles = 5;
-		if (isPageCrossed((this->memory[operand] + this->Y), (this->memory[operand])))
+		if (isPageCrossed(this->memory[result], this->memory[result] + this->Y))
 			this->idleCycles += 1;
 		this->PC += 2;
 		SetZN(this->A);
@@ -925,16 +990,25 @@ void CPU::EOR(Instructions::Instruction I) {
 		break;
 	case 12:
 		//(indirect, X)
-		this->A = this->memory[operand + this->X] ^ this->A;
+		operand += this->X;
+		if (operand > 0xFF)
+			operand = operand - 0xFF;
+		result = operand + 1;
+		if (result > 0xFF)
+			result = result - 0xFF - 1;
+		result = this->memory[operand] | (this->memory[result] << 8);
+		this->A = this->memory[result] ^ this->A;
 		this->idleCycles = 6;
 		this->PC += 2;
 		SetZN(this->A);
 		break;
 	case 13:
 		//(indirect), Y
-		this->A = (this->memory[operand] + this->Y) ^ this->A;
+		operand2 = operand + 1;
+		result = this->memory[operand] | (this->memory[operand2] << 8);
+		this->A = (this->memory[result] + this->Y) ^ this->A;
 		this->idleCycles = 5;
-		if (isPageCrossed((this->memory[operand] + this->Y), (this->memory[operand])))
+		if (isPageCrossed((this->memory[result] + this->Y), (this->memory[result])))
 			this->idleCycles += 1;
 		this->PC += 2;
 		SetZN(this->A);
@@ -1006,16 +1080,25 @@ void CPU::ORA(Instructions::Instruction I) {
 		break;
 	case 12:
 		//(indirect, X)
-		this->A = this->memory[operand + this->X] | this->A;
+		operand += this->X;
+		if (operand > 0xFF)
+			operand = operand - 0xFF;
+		result = operand + 1;
+		if (result > 0xFF)
+			result = result - 0xFF - 1;
+		result = this->memory[operand] | (this->memory[result] << 8);
+		this->A = this->memory[result] | this->A;
 		this->idleCycles = 6;
 		this->PC += 2;
 		SetZN(this->A);
 		break;
 	case 13:
 		//(indirect), Y
-		this->A = (this->memory[operand] + this->Y) | this->A;
+		operand2 = operand + 1;
+		result = this->memory[operand] | (this->memory[operand2] << 8);
+		this->A = (this->memory[result] + this->Y) | this->A;
 		this->idleCycles = 5;
-		if (isPageCrossed((this->memory[operand] + this->Y), (this->memory[operand])))
+		if (isPageCrossed((this->memory[result] + this->Y), (this->memory[result])))
 			this->idleCycles += 1;
 		this->PC += 2;
 		SetZN(this->A);
@@ -1880,7 +1963,7 @@ void CPU::ROR(Instructions::Instruction I) {
 		result = carryFlag;
 		carryFlag = this->A & 0x01;
 		this->A = (this->A >> 1);
-		this->A = this->A | result << 8;
+		this->A = this->A | (result << 7);
 		SetZN(this->A);
 		this->idleCycles = 2;
 		this->PC += 1;
@@ -2195,15 +2278,19 @@ void CPU::RTI(Instructions::Instruction I) {
 	BYTE P;
 	P = this->stack[this->SP];
 	this->negativeFlag = (P & 0x80);
-	this->overflowFlag = (P & 0x70);
-	this->bFlag2 = (P & 0x60);
-	this->bFlag1 = (P & 0x50);
-	this->decimalModeFlag = (P & 0x04);
-	this->interruptDisable = (P & 0x03);
+	this->overflowFlag = (P & 0x40);
+	this->bFlag2 = 1; //Interrupts will always push a 1 in this flag. I don't have interrupts yet so this fakes that for now. //(P & 0x20);
+	this->bFlag1 = (P & 0x10);
+	this->decimalModeFlag = (P & 0x08);
+	this->interruptDisable = (P & 0x04);
 	this->zeroFlag = (P & 0x02);
 	this->carryFlag = (P & 0x01);
 	this->idleCycles = 6;
 	this->PC += 1;
+	this->SP++;
+	//would get PC from stack after handling interupt, which stores PC to stack, which I don't have yet.
+	//this->PC = this->stack[this->SP] | (this->stack[this->SP + 1] << 8)
+	this->SP++;
 }
 
 void CPU::Clock_Tick() {
