@@ -129,12 +129,14 @@
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="cpu.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ppu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cartridge.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="cpu.h" />
     <ClInclude Include="Instructions.h" />
+    <ClInclude Include="ppu.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\nestest.nes" />

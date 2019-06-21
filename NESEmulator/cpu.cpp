@@ -35,9 +35,9 @@ int _InstructionMode[0x100] = {
 	  2,  12,  2,  0,  8,  8,  8,  0,  3,  2,  3,  0,  5,  5,  5,  0, //A
 	  4,  13,  0,  0,  9,  9,  10,  0,  3,  7,  3,  0,  6,  6,  7,  0, //B
 	  2,  12,  0,  0,  8,  8,  8,  0,  3,  2,  3,  0,  5,  5,  5,  0, //C
-	  4,  13,  0,  0,  0,  9,  9,  0,  3,  13,  0,  0,  0,  6,  6,  0, //D
+	  4,  13,  0,  0,  0,  9,  9,  0,  3,  7,  0,  0,  0,  6,  6,  0, //D
 	  2,  12,  0,  0,  8,  8,  8,  0,  3,  2,  3,  0,  5,  5,  5,  0, //E
-	  4,  13,  0,  0,  0,  9,  9,  0,  3,  13,  0,  0,  0,  6,  6,  0  //F
+	  4,  13,  0,  0,  0,  9,  9,  0,  3,  7,  0,  0,  0,  6,  6,  0  //F
 };
 
 int _InstructionLength[0x100] = {
@@ -267,7 +267,7 @@ void CPU::LDA(Instructions::Instruction I) {
 		//zero page, X
 		result = operand + this->X;
 		if (result > 0xFF)
-			result = (operand + this->X) - 0xFF;
+			result -= (0xFF + 1);
 		this->A = this->memory[result];
 		this->idleCycles = 4;
 		this->PC += 2;
@@ -277,7 +277,7 @@ void CPU::LDA(Instructions::Instruction I) {
 		//(indirect, X)
 		operand += this->X;
 		if (operand> 0xFF)
-			operand = operand - 0xFF;
+			operand = operand - (0xFF + 1);
 		result = operand + 1;
 		if (result > 0xFF)
 			result = result - 0xFF - 1;
@@ -360,7 +360,7 @@ void CPU::LDX(Instructions::Instruction I) {
 	case 8:
 		//zero page. Wraparound if > FF.
 		if (operand > 0xFF)
-			operand -= 0xFF;
+			operand -= (0xFF + 1);
 		this->X = this->memory[operand];
 		this->idleCycles = 3;
 		this->PC += 2;
@@ -370,7 +370,7 @@ void CPU::LDX(Instructions::Instruction I) {
 		//zero page, X
 		result = operand + this->X;
 		if (result > 0xFF)
-			result = (operand + this->X) - 0xFF;
+			result -= (0xFF + 1);
 		this->X = this->memory[result];
 		this->idleCycles = 4;
 		this->PC += 2;
@@ -380,7 +380,7 @@ void CPU::LDX(Instructions::Instruction I) {
 		//(indirect, X)
 		operand += this->X;
 		if (operand > 0xFF)
-			operand = operand - 0xFF;
+			operand = operand - (0xFF + 1);
 		result = operand + 1;
 		if (result > 0xFF)
 			result = result - 0xFF - 1;
@@ -472,7 +472,7 @@ void CPU::LDY(Instructions::Instruction I) {
 		//zero page, X
 		result = operand + this->X;
 		if (result > 0xFF)
-			result = (operand + this->X) - 0xFF;
+			result -= (0xFF + 1);
 		this->Y = this->memory[result];
 		this->idleCycles = 4;
 		this->PC += 2;
@@ -482,7 +482,7 @@ void CPU::LDY(Instructions::Instruction I) {
 		//(indirect, X)
 		operand += this->X;
 		if (operand > 0xFF)
-			operand = operand - 0xFF;
+			operand = operand - (0xFF + 1);
 		result = operand + 1;
 		if (result > 0xFF)
 			result = result - 0xFF - 1;
@@ -556,7 +556,7 @@ void CPU::STA(Instructions::Instruction I) {
 		//zero page, X
 		result = operand + this->X;
 		if (result > 0xFF)
-			result = (operand + this->X) - 0xFF;
+			result -= (0xFF + 1);
 		this->memory[result] = this->A;
 		this->idleCycles = 4;
 		this->PC += 2;
@@ -565,7 +565,7 @@ void CPU::STA(Instructions::Instruction I) {
 		//(indirect, X)
 		operand += this->X;
 		if (operand > 0xFF)
-			operand = operand - 0xFF;
+			operand -= (0xFF + 1);
 		result = operand + 1;
 		if (result > 0xFF)
 			result = result - 0xFF - 1;
@@ -636,7 +636,7 @@ void CPU::STX(Instructions::Instruction I) {
 		//zero page, X
 		result = operand + this->X;
 		if (result > 0xFF)
-			result = (operand + this->X) - 0xFF;
+			result -= (0xFF + 1);
 		this->memory[result] = this->X;
 		this->idleCycles = 4;
 		this->PC += 2;
@@ -645,7 +645,7 @@ void CPU::STX(Instructions::Instruction I) {
 		//(indirect, X)
 		operand += this->X;
 		if (operand > 0xFF)
-			operand = operand - 0xFF;
+			operand = operand - (0xFF + 1);
 		result = operand + 1;
 		if (result > 0xFF)
 			result = result - 0xFF - 1;
@@ -717,7 +717,7 @@ void CPU::STY(Instructions::Instruction I) {
 		//zero page, X
 		result = operand + this->X;
 		if (result > 0xFF)
-			result = (operand + this->X) - 0xFF;
+			result -= (0xFF + 1);
 		this->memory[result] = this->Y;
 		this->idleCycles = 4;
 		this->PC += 2;
@@ -726,7 +726,7 @@ void CPU::STY(Instructions::Instruction I) {
 		//(indirect, X)
 		operand += this->X;
 		if (operand > 0xFF)
-			operand = operand - 0xFF;
+			operand = operand - (0xFF + 1);
 		result = operand + 1;
 		if (result > 0xFF)
 			result = result - 0xFF - 1;
@@ -888,7 +888,7 @@ void CPU::AND(Instructions::Instruction I) {
 	case 7:
 		//absolute, Y
 		operand2 = this->memory[this->PC + 2];
-		result = (operand << 8) | operand;
+		result = (operand2 << 8) | operand;
 		result += this->Y;
 		this->A = (this->memory[result]) & this->A;
 		this->idleCycles = 4;
@@ -908,9 +908,10 @@ void CPU::AND(Instructions::Instruction I) {
 		break;
 	case 9:
 		//zero page, X
-		if ((operand + this->X) > 0xFF)
-			operand = (operand + this->X) - 0xFF;
-		this->A = this->memory[(operand + this->X)] & this->A;
+		operand += this->X;
+		if ((operand) > 0xFF)
+			operand -= (0xFF + 1);
+		this->A = this->memory[operand] & this->A;
 		this->idleCycles = 4;
 		this->PC += 2;
 		SetZN(this->A);
@@ -919,7 +920,7 @@ void CPU::AND(Instructions::Instruction I) {
 		//(indirect, X)
 		operand += this->X;
 		if (operand > 0xFF)
-			operand = operand - 0xFF;
+			operand = operand - (0xFF + 1);
 		result = operand + 1;
 		if (result > 0xFF)
 			result = result - 0xFF - 1;
@@ -1001,8 +1002,9 @@ void CPU::EOR(Instructions::Instruction I) {
 		break;
 	case 9:
 		//zero page, X
-		if ((operand + this->X)> 0xFF)
-			operand = (operand + this->X) - 0xFF;
+		operand += this->X;
+		if ((operand)> 0xFF)
+			operand -= (0xFF + 1);
 		this->A = this->memory[operand] ^ this->A;
 		this->idleCycles = 4;
 		this->PC += 2;
@@ -1012,7 +1014,7 @@ void CPU::EOR(Instructions::Instruction I) {
 		//(indirect, X)
 		operand += this->X;
 		if (operand > 0xFF)
-			operand = operand - 0xFF;
+			operand = operand - (0xFF + 1);
 		result = operand + 1;
 		if (result > 0xFF)
 			result = result - 0xFF - 1;
@@ -1094,8 +1096,9 @@ void CPU::ORA(Instructions::Instruction I) {
 		break;
 	case 9:
 		//zero page, X
-		if ((operand + this->X) > 0xFF)
-			operand = (operand + this->X) - 0xFF;
+		operand = operand + this->X;
+		if ((operand) > 0xFF)
+			operand = operand - (0xFF + 1);
 		this->A = this->memory[operand] | this->A;
 		this->idleCycles = 4;
 		this->PC += 2;
@@ -1105,7 +1108,7 @@ void CPU::ORA(Instructions::Instruction I) {
 		//(indirect, X)
 		operand += this->X;
 		if (operand > 0xFF)
-			operand = operand - 0xFF;
+			operand = operand - (0xFF + 1);
 		result = operand + 1;
 		if (result > 0xFF)
 			result = result - 0xFF - 1;
@@ -1275,7 +1278,7 @@ void CPU::ADC(Instructions::Instruction I) {
 	case 8:
 		//zero page. wraparound if > 0xFF
 		if (operand > 0xFF)
-			operand -= 0xFF;
+			operand -= (0xFF + 1);
 		tmp = this->carryFlag;
 		if ((this->A ^ (this->A + this->memory[operand] + tmp)) & (this->memory[operand] ^ (this->A + this->memory[operand] + tmp)) & 0x80)
 			this->overflowFlag = 1;
@@ -1293,14 +1296,14 @@ void CPU::ADC(Instructions::Instruction I) {
 		//zero page, X
 		operand += this->X;
 		if (operand > 0xFF)
-			operand = operand - 0xFF;
+			operand = operand - (0xFF + 1);
 		tmp = this->carryFlag;
-		if ((this->A ^ (this->A + this->memory[operand + this->X] + tmp)) & (this->memory[operand] ^ (this->A + this->memory[operand + this->X] + tmp)) & 0x80)
+		if ((this->A ^ (this->A + this->memory[operand] + tmp)) & (this->memory[operand] ^ (this->A + this->memory[operand] + tmp)) & 0x80)
 			this->overflowFlag = 1;
 		else
 			this->overflowFlag = 0;
 		this->carryFlag = 0;
-		if ((this->A + operand + tmp) > 0xFF)
+		if ((this->A + this->memory[operand] + tmp) > 0xFF)
 			this->carryFlag = 1;
 		this->A = this->A + this->memory[operand] + tmp;
 		this->idleCycles = 4;
@@ -1312,7 +1315,7 @@ void CPU::ADC(Instructions::Instruction I) {
 		tmp = this->carryFlag;
 		operand2 = operand + this->X;
 		if (operand2 > 0xFF)
-			operand2 = operand2 - 0xFF - 1;
+			operand2 = operand2 - (0xFF + 1);
 		result = operand2 + 1;
 		if (result > 0xFF)
 			result = result - 0xFF - 1;
@@ -1462,9 +1465,9 @@ void CPU::SBC(Instructions::Instruction I) {
 		//zero page, X
 		operand += this->X;
 		if ((operand) > 0xFF)
-			operand = operand - 0xFF;
+			operand = operand - (0xFF + 1);
 		tmp = this->carryFlag;
-		if ((this->A ^ (this->A + (255 - this->memory[operand]) + tmp)) & (this->memory[operand] ^ (this->A + (255 - this->memory[operand]) + tmp)) & 0x80)
+		if ((this->A ^ (this->A + (255 - this->memory[operand]) + tmp)) & ((255 - this->memory[operand]) ^ (this->A + (255 - this->memory[operand]) + tmp)) & 0x80)
 			this->overflowFlag = 1;
 		else
 			this->overflowFlag = 0;
@@ -1482,7 +1485,7 @@ void CPU::SBC(Instructions::Instruction I) {
 		tmp = this->carryFlag;
 		operand = operand + this->X;
 		if (operand > 0xFF)
-			operand -= 0xFF - 1;
+			operand -= (0xFF + 1);
 		result = operand + 1;
 		if (result > 0xFF)
 			result -= 0xFF - 1;
@@ -1572,7 +1575,7 @@ void CPU::CMP(Instructions::Instruction I) {
 		operand2 = this->memory[this->PC + 2];
 		result = (operand2 << 8) | operand;
 		result += this->Y;
-		SetZN(this->A - result);
+		SetZN(this->A - this->memory[result]);
 		if (this->A >= this->memory[result])
 			this->carryFlag = 1;
 		else
@@ -1594,6 +1597,9 @@ void CPU::CMP(Instructions::Instruction I) {
 		break;
 	case 9:
 		//zero page, X
+		operand += this->X;
+		if (operand > 0xFF)
+			operand -= (0xFF + 1);
 		SetZN(this->A - this->memory[operand + this->X]);
 		if (this->A >= this->memory[operand + this->X])
 			this->carryFlag = 1;
@@ -1606,7 +1612,7 @@ void CPU::CMP(Instructions::Instruction I) {
 		//indirect, X
 		operand2 = operand + this->X;
 		if (operand2 > 0xFF)
-			operand2 -= 0xFF - 1;
+			operand2 -= (0xFF + 1);
 		result = operand2 + 1;
 		if (result > 0xFF)
 			result -= 0xFF - 1;
@@ -1756,7 +1762,7 @@ void CPU::INC(Instructions::Instruction I) {
 		//zero page, X
 		operand += this->X;
 		if (operand > 0xFF)
-			operand -= 0xFF - 1;
+			operand -= (0xFF + 1);
 		this->memory[operand] += 1;
 		this->idleCycles = 6;
 		this->PC += 2;
@@ -1816,7 +1822,7 @@ void CPU::DEC(Instructions::Instruction I) {
 		//zero page, X
 		operand += this->X;
 		if (operand > 0xFF)
-			operand -= 0xFF - 1;
+			operand -= (0xFF + 1);
 		this->memory[operand] -= 1;
 		this->idleCycles = 6;
 		this->PC += 2;
@@ -1890,7 +1896,7 @@ void CPU::ASL(Instructions::Instruction I) {
 		//zero page, X
 		operand += this->X;
 		if (operand > 0xFF)
-			operand -= 0xFF - 1;
+			operand -= (0xFF + 1);
 		carryFlag = this->memory[operand] & 0x80;
 		this->memory[operand + this->X] = this->memory[operand] << 1;
 		this->idleCycles = 6;
@@ -1947,7 +1953,7 @@ void CPU::LSR(Instructions::Instruction I) {
 		//zero page, X
 		operand += this->X;
 		if (operand > 0xFF)
-			operand -= 0xFF - 1;
+			operand -= (0xFF + 1);
 		carryFlag = this->memory[operand] & 0x01;
 		this->memory[operand + this->X] = this->memory[operand] >> 1;
 		this->idleCycles = 6;
@@ -2013,7 +2019,7 @@ void CPU::ROL(Instructions::Instruction I) {
 		//zero page, X
 		operand += this->X;
 		if (operand > 0xFF)
-			operand -= 0xFF - 1;
+			operand -= (0xFF + 1);
 		result = carryFlag;
 		carryFlag = this->memory[operand + this->X] & 0x80;
 		this->memory[operand] = this->memory[operand] << 1;
@@ -2081,7 +2087,7 @@ void CPU::ROR(Instructions::Instruction I) {
 		//zero page, X
 		operand += this->X;
 		if (operand > 0xFF)
-			operand -= 0xFF - 1;
+			operand -= (0xFF + 1);
 		result = carryFlag;
 		carryFlag = this->memory[operand + this->X] & 0x80;
 		this->memory[operand] = this->memory[operand] << 1;

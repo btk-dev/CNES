@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cpu.h"
+#include "ppu.h"
 #include "cartridge.h"
 
 //.h file for the console, the entire NES with CPU, PPU, etc
