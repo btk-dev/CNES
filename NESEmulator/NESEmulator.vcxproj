@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="buscpp.cpp" />
     <ClCompile Include="Cartridge.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="cpu.cpp" />
@@ -132,6 +133,7 @@
     <ClCompile Include="ppu.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bus.h" />
     <ClInclude Include="cartridge.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="cpu.h" />
@@ -139,7 +141,10 @@
     <ClInclude Include="ppu.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Donkey_kong.nes" />
     <None Include="..\nestest.nes" />
+    <None Include="..\official.nes" />
+    <None Include="..\official_only.nes" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

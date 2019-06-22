@@ -30,6 +30,9 @@
     <ClCompile Include="ppu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="buscpp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cpu.h">
@@ -47,9 +50,15 @@
     <ClInclude Include="ppu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="bus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="..\nestest.nes" />
+    <None Include="..\official.nes" />
+    <None Include="..\Donkey_kong.nes" />
+    <None Include="..\official_only.nes" />
   </ItemGroup>
 </Project>

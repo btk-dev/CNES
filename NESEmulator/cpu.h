@@ -78,6 +78,11 @@ private:
 
 	void SetZN(BYTE);
 
+	void handleInterrupt(Instructions::Instruction);
+	bool interruptPending;
+	//IRQ is CPU interrupt. Is set to true after: APU DMC finish, APU Frame Counter, MMC3, MMC5, VRC4/6/7, FME-7, Namco 163, FDS
+	bool IRQ;
+
 	void LDA(Instructions::Instruction);
 	void LDX(Instructions::Instruction);
 	void LDY(Instructions::Instruction);

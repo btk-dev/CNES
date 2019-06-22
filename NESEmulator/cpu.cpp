@@ -200,6 +200,44 @@ void CPU::SetZN(BYTE A) {
 		this->negativeFlag = 0;
 }
 
+void CPU::handleInterrupt(Instructions::Instruction I) {
+	//have to save the values of the A and index registers and restore them afterwards.
+	//RESET does not push PC and P to stack
+	//NMI, IRQ and BRK all push PC and P to stack.
+
+	//BRK sets B flag(bit 4)
+	//NMI, IRQ and RESET do not set the bFlag
+
+	//NMI pulls PC from FFFA/FFFB
+	//RESET pulls PC from FFFC/FFFD
+	//IRQ/BRK pull PC from FFFE/FFFF
+	BRK(I);
+	//order of events is thus:
+	//BRK:
+	//store PC(high)
+	//store PC(low)
+	//store P
+	//fetch PC(low)
+	//fetch PC(high)
+
+	//IRQ:
+	//same as BRK but clears bFlag before pushing P to stack
+	//if there is IRQ pending and current inst has just finished the interupt foces the instruction register to 0 instead of executing next instruction
+	//the PLA will decode that as 0x00 which is BRK
+
+	//NMI is done the same as above, but pulls PC from different address
+
+	//RESET does the same as above with these differenes
+	//when system is powered on the SP = 0, pull 0 into instruction register
+	//first stack access happens at $0100 and then decrement SP to 0xFF
+	//repeat so SP is now 0xFE
+	//happens again to emulate status register so SP now = 0xFD
+	//now read low byte of vector into PC from 0x01FD
+	//read high byte of PC again. This is why SP is initially 0xFD
+
+	//after completing interrupt pull PC back to continue operation of program.
+}
+
 //Load/Store Operations
 void CPU::LDA(Instructions::Instruction I) {
 	BYTE operand = this->memory[this->PC + 1];
@@ -2349,12 +2387,23 @@ void CPU::BRK(Instructions::Instruction I) {
 	//generate interupt. Push flags to stack
 	if (I.mode != 3)
 		return;
+	//push program bank register?
+	this->stack[this->SP] = (this->PC >> 8);
+	this->SP--;
+	this->stack[this->SP] = (this->PC & 0x00FF);
+	this->SP--;
 	BYTE P;
 	P = (carryFlag << 0) + (zeroFlag << 1) + (interruptDisable << 2) + (decimalModeFlag << 3) + (bFlag1 << 4) + (bFlag2 << 5) + (overflowFlag << 6) + (negativeFlag << 7);
+	this->interruptDisable = 1;
 	this->stack[this->SP] = P;
 	this->SP -= 1;
 	this->bFlag1 = 1;
 	this->bFlag2 = 1;
+	//pull program bank register?
+	//with RESET pull program counter from FFFC/FFFD
+	//with NMI pull program counter from FFFA/FFFB
+	//with IRQ pull program counter from FFFE/FFFF
+	this->PC = this->memory[0xFFFE] | (this->memory[0xFFF] << 8);
 	this->idleCycles = 7;
 	this->PC += 1;
 }
@@ -2387,6 +2436,9 @@ void CPU::RTI(Instructions::Instruction I) {
 
 void CPU::Clock_Tick() {
 	//check for interrupts
+
+	//poll for interrupt somehow
+	//IRQ is a CPU interrupt, NMI is a PPU interrupt. That is how I will differentiate them.
 
 	//retrieve opcode
 	//execute opcode
@@ -2571,17 +2623,9 @@ void CPU::Clock_Tick() {
 	default:
 		break;
 	}
-	/*
-	//for debugging purposes
-	std::cout << "Stack pointer +";
-	for (int i = 0; i < 8; i++) {
-		std::cout << std::hex << this->stack[SP + i] << " ";
+	 //handle interrupt
+	if (this->interruptPending && !this->interruptDisable) {
+		handleInterrupt(inst);
+		this->interruptPending = false;
 	}
-	std::cout << "\nStack Pointer -";
-	for (int i = 0; i < 8; i++) {
-		std::cout << std::hex << this->stack[SP - i] << " ";
-	}
-	std::cout << "\n";
-	*/
-	//this->PC += 1;
 }
