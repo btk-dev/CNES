@@ -31,9 +31,9 @@ int _InstructionMode[0x100] = {
 	  3,  12,  0,  0,  0,  8,  8,  0,  3,  2,  1,  0,  11,  5,  5,  0, //6
 	  4,  13,  0,  0,  0,  9,  9,  0,  3,  7,  0,  0,  0,  6,  6,  0, //7
 	  0,  12,  0,  0,  8,  8,  8,  0,  3,  0,  3,  0,  5,  5,  5,  0, //8
-	  4,  13,  0,  0,  9,  9,  10,  0,  3,  7,  3,  0,  0,  6,  0,  0, //9
+	  4,  13,  0,  0,  9,  9,  9,  0,  3,  7,  3,  0,  0,  6,  0,  0, //9
 	  2,  12,  2,  0,  8,  8,  8,  0,  3,  2,  3,  0,  5,  5,  5,  0, //A
-	  4,  13,  0,  0,  9,  9,  10,  0,  3,  7,  3,  0,  6,  6,  7,  0, //B
+	  4,  13,  0,  0,  9,  9,  9,  0,  3,  7,  3,  0,  6,  6,  7,  0, //B
 	  2,  12,  0,  0,  8,  8,  8,  0,  3,  2,  3,  0,  5,  5,  5,  0, //C
 	  4,  13,  0,  0,  0,  9,  9,  0,  3,  7,  0,  0,  0,  6,  6,  0, //D
 	  2,  12,  0,  0,  8,  8,  8,  0,  3,  2,  3,  0,  5,  5,  5,  0, //E
@@ -368,7 +368,7 @@ void CPU::LDX(Instructions::Instruction I) {
 		break;
 	case 9:
 		//zero page, X
-		result = operand + this->X;
+		result = operand + this->Y;
 		if (result > 0xFF)
 			result -= (0xFF + 1);
 		this->X = this->memory[result];
@@ -1898,9 +1898,9 @@ void CPU::ASL(Instructions::Instruction I) {
 		if (operand > 0xFF)
 			operand -= (0xFF + 1);
 		carryFlag = this->memory[operand] & 0x80;
-		this->memory[operand + this->X] = this->memory[operand] << 1;
+		this->memory[operand] = this->memory[operand] << 1;
 		this->idleCycles = 6;
-		this->PC += 3;
+		this->PC += 2;
 		SetZN(this->memory[operand]);
 		break;
 	default:
@@ -1955,9 +1955,9 @@ void CPU::LSR(Instructions::Instruction I) {
 		if (operand > 0xFF)
 			operand -= (0xFF + 1);
 		carryFlag = this->memory[operand] & 0x01;
-		this->memory[operand + this->X] = this->memory[operand] >> 1;
+		this->memory[operand] = this->memory[operand] >> 1;
 		this->idleCycles = 6;
-		this->PC += 3;
+		this->PC += 2;
 		SetZN(this->memory[operand]);
 		break;
 	default:
@@ -2021,11 +2021,11 @@ void CPU::ROL(Instructions::Instruction I) {
 		if (operand > 0xFF)
 			operand -= (0xFF + 1);
 		result = carryFlag;
-		carryFlag = this->memory[operand + this->X] & 0x80;
+		carryFlag = this->memory[operand] & 0x80;
 		this->memory[operand] = this->memory[operand] << 1;
 		this->memory[operand] = this->memory[operand] | result;
 		this->idleCycles = 6;
-		this->PC += 3;
+		this->PC += 2;
 		SetZN(this->memory[operand]);
 		break;
 	default:
@@ -2066,9 +2066,9 @@ void CPU::ROR(Instructions::Instruction I) {
 		result = (operand2 << 8) | operand;
 		result += this->X;
 		operand = carryFlag;
-		carryFlag = this->memory[result] & 0x80;
-		this->memory[result] = this->memory[result] << 1;
-		this->memory[result] = this->memory[result] | (operand << 8);
+		carryFlag = this->memory[result] & 0x01;
+		this->memory[result] = this->memory[result] >> 1;
+		this->memory[result] = this->memory[result] | (operand << 7);
 		this->idleCycles = 7;
 		this->PC += 3;
 		SetZN(this->memory[result]);
@@ -2076,9 +2076,9 @@ void CPU::ROR(Instructions::Instruction I) {
 	case 8:
 		//zero page
 		result = carryFlag;
-		carryFlag = this->memory[operand] & 0x80;
-		this->memory[operand] = this->memory[operand] << 1;
-		this->memory[operand] = this->memory[operand] | (operand << 8);
+		carryFlag = this->memory[operand] & 0x01;
+		this->memory[operand] = this->memory[operand] >> 1;
+		this->memory[operand] = this->memory[operand] | (result << 7);
 		this->idleCycles = 5;
 		this->PC += 2;
 		SetZN(this->memory[operand]);
@@ -2089,11 +2089,11 @@ void CPU::ROR(Instructions::Instruction I) {
 		if (operand > 0xFF)
 			operand -= (0xFF + 1);
 		result = carryFlag;
-		carryFlag = this->memory[operand + this->X] & 0x80;
-		this->memory[operand] = this->memory[operand] << 1;
-		this->memory[operand] = this->memory[operand] | (operand << 8);
+		carryFlag = this->memory[operand] & 0x01;
+		this->memory[operand] = this->memory[operand] >> 1;
+		this->memory[operand] = this->memory[operand] | (result << 7);
 		this->idleCycles = 6;
-		this->PC += 3;
+		this->PC += 2;
 		SetZN(this->memory[operand]);
 		break;
 	default:
