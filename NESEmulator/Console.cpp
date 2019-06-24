@@ -30,6 +30,7 @@ BYTE Console::getMapperInfo(Cartridge c) {
 void Console::loadCartridge(const char* file_path) {
 	Cartridge c = this->cart;
 	std::vector<BYTE> game = c.loadGame(file_path);
+	//have to actually call the verify game function in cartridge
 
 	//number of pages for program rom
 	//comes in 16Kb pieces
@@ -47,7 +48,7 @@ void Console::loadCartridge(const char* file_path) {
 	//for (int i = 0; i < game.size(); i++) {
 		//Console::memory[0x4020 + i] = game[i];
 	//}
-	this->cpu.loadGame(game);
+	this->cpu.loadGame(game, pgr, chr);
 }
 
 bool Console::is_Running() {

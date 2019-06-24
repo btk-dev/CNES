@@ -125,7 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="buscpp.cpp" />
+    <ClCompile Include="bus.cpp" />
     <ClCompile Include="Cartridge.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="cpu.cpp" />
@@ -141,6 +141,7 @@
     <ClInclude Include="ppu.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\01-basics.nes" />
     <None Include="..\Donkey_kong.nes" />
     <None Include="..\nestest.nes" />
     <None Include="..\official.nes" />

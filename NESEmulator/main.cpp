@@ -25,12 +25,13 @@ int main() {
 
 	Console nes;
 	nes.createCPU();
-	//nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\nestest.nes");
+	nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\nestest.nes");
 	//donkey kong first opcode crashes
 	//nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\Donkey_kong.nes");
 	//crashing loading the below, too big.
 	//nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\official.nes");
-	nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\official_only.nes");
+	//nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\official_only.nes");
+	//nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\01-basics.nes");
 	while (nes.is_Running()) {
 		nes.cpu.Clock_Tick();
 		//ppu does 3 ticks for every 1 cpu tick

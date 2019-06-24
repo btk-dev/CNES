@@ -166,6 +166,7 @@ bool CPU::Reset() {
 	//A, X, Y not affected
 	//S decremented by 3
 	//I flag set to true (ORed with $04)
+	this->interruptDisable |= this->memory[0x0004];
 	//Internal memory unchanged
 	//APU mode in $4017 unchanged
 	//APU silenced ($4015 = 0)
@@ -174,18 +175,37 @@ bool CPU::Reset() {
 	return true;
 }
 
-void CPU::loadGame(std::vector<BYTE> game) {
+void CPU::loadGame(std::vector<BYTE> game, BYTE pgr, BYTE chr) {
+	//this needs some work yet. Need to load the file according to prg rom.
+	//if pgr only has 1 16kb bank, then mirror the loading into 0xC000, else load second bank into 0xC000 and use map switching
 	for (int i = 0; i < game.size(); i++)
+		//should actually be this->memory[0x8000] but with nestest this will have to do for now.
 		this->memory[0xC000 + i] = game[i];
 		//this->memory[0x4020 + i] = game[i];
+	//if (pgr == 1)
+		//for (int i = 0; i < game.size(); i++)
+			//this->memory[0xC000 + i] = game[i];
 	//temporary start for program counter for nestest
-	this->PC = 0xC000;
+	this->PC = 0xc000;
+	//this->PC = this->memory[0xFFFC] | (this->memory[0xFFFD] << 8);
 }
 
 bool CPU::isPageCrossed(BYTE A, BYTE B) {
 	if ((A & 0xFF) != (B & 0xFF))
 		return true;
 	return false;
+}
+
+void CPU::writeToMemory(BYTE source, unsigned int destination) {
+	//if destination is inside of the program rom then perform a mapper swap
+	this->memory[destination] = source;
+	SetZN(this->memory[destination]);
+}
+
+void CPU::readFromMemory(unsigned int source, BYTE destination) {
+	//this doesn't work as of now
+	destination = this->memory[source];
+	SetZN(destination);
 }
 
 void CPU::SetZN(BYTE A) {
@@ -260,6 +280,7 @@ void CPU::LDA(Instructions::Instruction I) {
 		//little endian so high memory address is in second byte.
 		result = (operand2 << 8) | operand;
 		this->A = this->memory[result];
+		//readFromMemory(result, this->A);
 		//takes 3 cycles
 		this->idleCycles = 3;
 		//add 3 to program counter
@@ -636,7 +657,8 @@ void CPU::STX(Instructions::Instruction I) {
 		operand2 = this->memory[this->PC + 2];
 		//little endian so high memory address is in second byte.
 		result = (operand2 << 8) | operand;
-		this->memory[result] = this->X;
+		//this->memory[result] = this->X;
+		writeToMemory(this->X, result);
 		//takes 4 cycles
 		this->idleCycles = 4;
 		//add 3 to program counter
@@ -666,7 +688,8 @@ void CPU::STX(Instructions::Instruction I) {
 		//zero page. Wraparound if > FF.
 		if (operand > 0xFF)
 			operand -= 0xFF;
-		this->memory[operand] = this->X;
+		//this->memory[operand] = this->X;
+		writeToMemory(this->X, operand);
 		this->idleCycles = 3;
 		this->PC += 2;
 		break;
@@ -675,7 +698,8 @@ void CPU::STX(Instructions::Instruction I) {
 		result = operand + this->X;
 		if (result > 0xFF)
 			result -= (0xFF + 1);
-		this->memory[result] = this->X;
+		//this->memory[result] = this->X;
+		writeToMemory(this->X, result);
 		this->idleCycles = 4;
 		this->PC += 2;
 		break;

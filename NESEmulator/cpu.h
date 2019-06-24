@@ -17,7 +17,7 @@ public:
 
 	bool Reset();
 
-	void loadGame(std::vector<BYTE> game);
+	void loadGame(std::vector<BYTE> game, BYTE pgr, BYTE chr);
 
 private:
 	//clock cycle of 1.79 MHz (1.66 on PAL)
@@ -76,6 +76,8 @@ private:
 	Instructions I;
 	Instructions::Instruction inst;
 
+	void writeToMemory(BYTE source, unsigned int destination);
+	void readFromMemory(unsigned int source, BYTE destination);
 	void SetZN(BYTE);
 
 	void handleInterrupt(Instructions::Instruction);

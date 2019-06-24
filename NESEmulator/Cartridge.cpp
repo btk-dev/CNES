@@ -43,8 +43,8 @@ bool Cartridge::verifyINES(std::vector<BYTE> header) {
 	if (constant == "NES" && header[3] == 0x1A)
 		isValid = true;
 
-	Cartridge::PRGROM = header[4];
-	Cartridge::CHRROM = header[5];
+	Cartridge::PRGROM = (header[4] >> 4);
+	Cartridge::CHRROM = (header[5] >> 5);
 
 	Cartridge::mapperInfo = (header[7] & 0xF0) >> 4;
 	Cartridge::mapperInfo = (Cartridge::mapperInfo & (header[7] & 0xF0));

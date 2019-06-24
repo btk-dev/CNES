@@ -30,7 +30,7 @@
     <ClCompile Include="ppu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="buscpp.cpp">
+    <ClCompile Include="bus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -60,5 +60,6 @@
     <None Include="..\official.nes" />
     <None Include="..\Donkey_kong.nes" />
     <None Include="..\official_only.nes" />
+    <None Include="..\01-basics.nes" />
   </ItemGroup>
 </Project>
