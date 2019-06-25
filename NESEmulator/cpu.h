@@ -77,7 +77,7 @@ private:
 	Instructions::Instruction inst;
 
 	void writeToMemory(BYTE source, unsigned int destination);
-	void readFromMemory(unsigned int source, BYTE destination);
+	void readFromMemory(unsigned int source, BYTE* destination);
 	void SetZN(BYTE);
 
 	void handleInterrupt(Instructions::Instruction);
