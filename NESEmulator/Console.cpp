@@ -31,6 +31,9 @@ void Console::loadCartridge(const char* file_path) {
 	Cartridge c = this->cart;
 	std::vector<BYTE> game = c.loadGame(file_path);
 	//have to actually call the verify game function in cartridge
+	std::vector<BYTE> header(game.begin(), game.begin() + 16);
+
+	c.verifyINES(header);
 
 	//number of pages for program rom
 	//comes in 16Kb pieces

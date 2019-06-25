@@ -25,9 +25,9 @@ int main() {
 
 	Console nes;
 	nes.createCPU();
-	nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\nestest.nes");
+	//nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\nestest.nes");
 	//donkey kong first opcode crashes
-	//nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\Donkey_kong.nes");
+	nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\Donkey_kong.nes");
 	//crashing loading the below, too big.
 	//nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\official.nes");
 	//nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\official_only.nes");

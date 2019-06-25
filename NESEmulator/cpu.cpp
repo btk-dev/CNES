@@ -180,14 +180,14 @@ void CPU::loadGame(std::vector<BYTE> game, BYTE pgr, BYTE chr) {
 	//if pgr only has 1 16kb bank, then mirror the loading into 0xC000, else load second bank into 0xC000 and use map switching
 	for (int i = 0; i < game.size(); i++)
 		//should actually be this->memory[0x8000] but with nestest this will have to do for now.
-		this->memory[0xC000 + i] = game[i];
+		this->memory[0x8000 + i] = game[i];
 		//this->memory[0x4020 + i] = game[i];
-	//if (pgr == 1)
-		//for (int i = 0; i < game.size(); i++)
-			//this->memory[0xC000 + i] = game[i];
+	if (pgr == 1)
+		for (int i = 0; i < game.size(); i++)
+			this->memory[0xC000 + i] = game[i];
 	//temporary start for program counter for nestest
-	this->PC = 0xc000;
-	//this->PC = this->memory[0xFFFC] | (this->memory[0xFFFD] << 8);
+	//this->PC = 0xc000;
+	this->PC = this->memory[0xFFFC] | (this->memory[0xFFFD] << 8);
 }
 
 bool CPU::isPageCrossed(BYTE A, BYTE B) {
