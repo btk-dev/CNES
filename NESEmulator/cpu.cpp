@@ -160,6 +160,7 @@ void CPU::Init() {
 	this->memory[384] = 51;
 	for (int i = 0; i < 0xFF; i++)
 		this->stack[i] = 0;
+	this->idleCycles = 7;
 }
 
 bool CPU::Reset() {
@@ -178,15 +179,16 @@ bool CPU::Reset() {
 void CPU::loadGame(std::vector<BYTE> game, BYTE pgr, BYTE chr) {
 	//this needs some work yet. Need to load the file according to prg rom.
 	//if pgr only has 1 16kb bank, then mirror the loading into 0xC000, else load second bank into 0xC000 and use map switching
-	for (int i = 0; i < game.size(); i++)
+	for (int i = 0; i < 4095/*game.size()*/; i++)
 		//should actually be this->memory[0x8000] but with nestest this will have to do for now.
 		this->memory[0x8000 + i] = game[i];
 		//this->memory[0x4020 + i] = game[i];
 	if (pgr == 1)
 		for (int i = 0; i < game.size(); i++)
 			this->memory[0xC000 + i] = game[i];
-	//temporary start for program counter for nestest
-	//this->PC = 0xc000;
+	else
+		for (int i = 0; i < 4095; i++)
+			this->memory[0xC000 + i] = game[i];
 	this->PC = this->memory[0xFFFC] | (this->memory[0xFFFD] << 8);
 }
 
@@ -206,6 +208,10 @@ void CPU::readFromMemory(unsigned int source, BYTE* destination) {
 	//this doesn't work as of now
 	*destination = this->memory[source];
 	SetZN(*destination);
+}
+
+void CPU::writePPUControl(BYTE reg) {
+	this->memory[0x2000] = reg;
 }
 
 void CPU::SetZN(BYTE A) {
@@ -2500,6 +2506,10 @@ void CPU::Clock_Tick() {
 
 	//poll for interrupt somehow
 	//IRQ is a CPU interrupt, NMI is a PPU interrupt. That is how I will differentiate them.
+
+	//also poll for memory bus read/writes probably
+	//need to figure out how to create idle state for the cpu during ppu cycles
+	//do I just include the ppu in this class and get rid of the bus altogether?
 
 	//retrieve opcode
 	//execute opcode

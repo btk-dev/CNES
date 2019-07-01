@@ -25,6 +25,7 @@ public:
 	bool is_Running();
 
 	CPU cpu;
+	PPU ppu;
 	Cartridge cart;
 private:
 };

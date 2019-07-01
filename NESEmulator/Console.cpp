@@ -46,12 +46,24 @@ void Console::loadCartridge(const char* file_path) {
 
 	BYTE mapper = Console::getMapperInfo(c);
 
+	std::vector<BYTE> graphics;
+
 	game.erase(game.begin(), game.begin() + 16);
+
+	//I think this should load the chr section of rom file but it may be off.
+	//Will only work with mapper 0 at the moment.
+	if (chr == 1) {
+		if (pgr == 1) {
+			for (int i = 0; i < 8191; i++)
+				graphics[i] = game[i + 16384];
+		}
+	}
 
 	//for (int i = 0; i < game.size(); i++) {
 		//Console::memory[0x4020 + i] = game[i];
 	//}
 	this->cpu.loadGame(game, pgr, chr);
+	this->ppu.load_graphics(graphics);
 }
 
 bool Console::is_Running() {

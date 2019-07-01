@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Instructions.h"
+#include "bus.h"
 
 typedef unsigned char BYTE;
 
@@ -18,6 +19,8 @@ public:
 	bool Reset();
 
 	void loadGame(std::vector<BYTE> game, BYTE pgr, BYTE chr);
+
+	void writePPUControl(BYTE reg);
 
 private:
 	//clock cycle of 1.79 MHz (1.66 on PAL)
