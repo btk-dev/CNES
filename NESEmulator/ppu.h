@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "bus.h"
+#include "ppubus.h"
 
 //class to hold graphics processing unit for the NES
 //currently have no idea what I am doing with graphics drawing, will need to practice using SDL
@@ -72,6 +73,9 @@ private:
 	//Address $4014. Bits aaaa aaaa. OAM DMA high address
 	BYTE OAMDMA;
 
+	//PPU mode type
+	BYTE ppuMode;
+
 	//frame toggles between odd and even
 	bool oddFrame;
 
@@ -113,6 +117,16 @@ private:
 	BYTE spriteLatch6;
 	BYTE spriteLatch7;
 	BYTE spriteLatch8;
+
+	//8 latches for sprite attributes
+	BYTE spriteAttrib1;
+	BYTE spriteAttrib2;
+	BYTE spriteAttrib3;
+	BYTE spriteAttrib4;
+	BYTE spriteAttrib5;
+	BYTE spriteAttrib6;
+	BYTE spriteAttrib7;
+	BYTE spriteAttrib8;
 
 	//patternTable1 is in memory $0000-$0FFF
 	//patternTable2 is in memory $1000-$1FFF

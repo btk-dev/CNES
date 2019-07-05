@@ -5,6 +5,8 @@
 #include "Instructions.h"
 #include "bus.h"
 
+//class to hold cpu operation procedures.
+
 typedef unsigned char BYTE;
 
 class CPU {

@@ -30,7 +30,34 @@ void PPU::Clock_Tick()
 
 	//Read Address Bus for changes from the CPU
 
-
+	switch (ppuMode) {
+	case 1:
+		//pre render
+		//fill registers for initial visible scanlines
+		//fetch nametable, attribute table, tile bitmap low and high
+		//place into latches/registers, check for sprite zero hit, etc.
+		//read memory accesses into latches, when in visible scanline these latches are moved into registers, these are then multiplexed before being written to screen.
+		//currently no mirroring implemented below.
+		//I don't think I need to actually have seperate variable fields for the nametables and the like.
+		this->spriteLatch1 = this->memory[0x2000];
+		this->spriteAttrib1 = this->memory[0x23C0];
+		//increment VRAM address
+		//fetch low order byte of an 8x1 pixel of pattern table $0000 - 0FF7 or $1000-1FF7
+		//fetch high order from 8 bytes higher
+		//turn attribute data and pattern data into palette indices, combine them with data from sprite data using priority
+		break;
+	case 2:
+		//visible
+		break;
+	case 3:
+		//post render
+		break;
+	case 4:
+		//vblank
+		break;
+	default:
+		break;
+	}
 
 	/*
 	Rendering:
