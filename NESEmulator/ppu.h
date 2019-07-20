@@ -76,6 +76,9 @@ private:
 	//PPU mode type
 	BYTE ppuMode;
 
+	//if rendering is enabled
+	bool rendering;
+
 	//frame toggles between odd and even
 	bool oddFrame;
 
@@ -87,6 +90,15 @@ private:
 
 	//which line of the screen is being rendered
 	int scanline;
+
+	//cycle number
+	int cycle;
+
+	//read registers
+	void readRegisters();
+
+	//write registers
+	void writeRegisters();
 
 	//8 registers for sprite info
 	BYTE spriteReg1;

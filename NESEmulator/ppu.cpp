@@ -45,6 +45,9 @@ void PPU::Clock_Tick()
 		//fetch low order byte of an 8x1 pixel of pattern table $0000 - 0FF7 or $1000-1FF7
 		//fetch high order from 8 bytes higher
 		//turn attribute data and pattern data into palette indices, combine them with data from sprite data using priority
+		if (this->cycle > 280 && this->cycle < 341 && this->rendering) {
+			//refresh vertical pixels
+		}
 		break;
 	case 2:
 		//visible
