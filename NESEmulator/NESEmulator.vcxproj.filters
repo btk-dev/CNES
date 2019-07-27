@@ -30,7 +30,10 @@
     <ClCompile Include="ppu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="bus.cpp">
+    <ClCompile Include="ppubus.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mainbus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,7 +53,13 @@
     <ClInclude Include="ppu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="bus.h">
+    <ClInclude Include="log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ppubus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mainbus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

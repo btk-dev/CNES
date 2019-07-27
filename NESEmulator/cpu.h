@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "Instructions.h"
-#include "bus.h"
+#include "mainbus.h"
 
 //class to hold cpu operation procedures.
 

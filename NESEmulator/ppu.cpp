@@ -16,6 +16,7 @@ void PPU::Init()
 	//where ? is unknown, x is irrelevant, + is often set, U = unchanged
 	//writes to PPUCTRL, PPUMASK, PPUSCROLL, PPUADDR are ignored for the first 29 658 cycles
 	this->PPUCTRL = this->PPUMASK = 0;
+	this->PC = this->cycle = 0;
 }
 
 void PPU::load_graphics(std::vector<BYTE> graphics)
@@ -31,6 +32,14 @@ void PPU::Clock_Tick()
 	//Read Address Bus for changes from the CPU
 
 	switch (ppuMode) {
+		/*
+		PPU renders 262 scanlines per frame. Each scanline lasts for 341 PPU clock cycles (113.667 cpu clock cycles) with each cycle producing 1 pixel.
+		Pre-render scanline (-1-261)
+			dummy scanline, sole purpose is to fill the shift registers with the data for the first 2 tiles of the next scanline. No pixels rendered but PPU still makes the same memory accessed it would usually
+			Varies in length, depending on if odd or even frame. Odd frame - cycle at the end is skipped (dont by jumping from 339,261 to 0,0 replacing the idle tick at the beginning of the first visible scnaline
+			with the last tick of the last dummy nametable fetch. Even frame - last cycle occurs normally. Done to compensate for shortcomcing with the PPU phsycal output.
+			During pixels 280 through 304 the vertical scroll bits are reloaded if rendering is enabled
+		*/
 	case 1:
 		//pre render
 		//fill registers for initial visible scanlines
@@ -45,6 +54,10 @@ void PPU::Clock_Tick()
 		//fetch low order byte of an 8x1 pixel of pattern table $0000 - 0FF7 or $1000-1FF7
 		//fetch high order from 8 bytes higher
 		//turn attribute data and pattern data into palette indices, combine them with data from sprite data using priority
+		if (this->cycle == 1) {
+			this->vblank = 0;
+			this->spriteCollision = false;
+		}
 		if (this->cycle > 280 && this->cycle < 341 && this->rendering) {
 			//refresh vertical pixels
 		}
@@ -60,6 +73,7 @@ void PPU::Clock_Tick()
 		break;
 	default:
 		break;
+		cycle++;
 	}
 
 	/*
@@ -156,6 +170,10 @@ void PPU::Clock_Tick()
 		this->oddFrame = true;
 }
 
+void PPU::spriteEval() {
+
+}
+
 bool PPU::Reset()
 {
 	//at reset
@@ -178,4 +196,36 @@ bool PPU::Reset()
 	oddFrame = false;
 
 	return true;
+}
+
+void PPU::readRegisters(BYTE reg)
+{
+	BYTE data = _mainbus.read(reg);
+	//set PPU register equal to value read for that register from the main bus
+	switch (reg) {
+	case 0x2002:
+		//PPU status
+		this->PPUSTATUS = data;
+		break;
+	case 0x2004:
+		//OAM data
+		this->OAMDATA = data;
+		break;
+	case 0x2007:
+		//ppu data
+		this->PPUDATA = data;
+		break;
+	case 0x4014:
+		//oam dma
+		this->OAMDMA = data;
+		break;
+	default:
+		break;
+	}
+}
+
+void PPU::writeRegisters(BYTE reg, BYTE data)
+{
+	//write PPU register to the main bus for the cpu to read
+	_mainbus.write(reg, data);
 }

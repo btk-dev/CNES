@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "bus.h"
+#include "mainbus.h"
 #include "ppubus.h"
 
 //class to hold graphics processing unit for the NES
@@ -21,6 +21,8 @@ public:
 	bool Reset();
 
 private:
+	mainbus _mainbus;
+	ppubus _picturebus;
 
 	//$0000 - 1FFF - mapped by the cartridge with chr-rom
 	//$2000 - 2FFF - mapped to the 2kB NES internal VRAM, these are drawn to the screen and mirrored
@@ -69,7 +71,7 @@ private:
 	//Address $2006. Bits aaaa aaaa. PPU read/write address (2 writes: most significant byte, least sig byte)
 	BYTE PPUADDR;
 	//Address $2007. Bits dddd dddd. PPU data read/write
-	BYTE PPURDATA;
+	BYTE PPUDATA;
 	//Address $4014. Bits aaaa aaaa. OAM DMA high address
 	BYTE OAMDMA;
 
@@ -88,17 +90,29 @@ private:
 	//x fine scroll. Determined by $2005
 	int xScroll;
 
+	//variable to hold v-blank state
+	bool vblank;
+
+	//variable to hold if sprite collision has happened
+	bool spriteCollision;
+
 	//which line of the screen is being rendered
 	int scanline;
 
 	//cycle number
-	int cycle;
+	unsigned int cycle;
 
 	//read registers
-	void readRegisters();
+	void readRegisters(BYTE reg);
 
 	//write registers
-	void writeRegisters();
+	void writeRegisters(BYTE reg, BYTE data);
+
+	//sprite evaluations for rendering
+	void spriteEval();
+
+	//variable to hold program counter in VRAM
+	unsigned int PC;
 
 	//8 registers for sprite info
 	BYTE spriteReg1;
@@ -151,7 +165,19 @@ private:
 	//3F01-3F03 palette 1, 3F05 - $3f07 #2, 3F09 - 3F0B # 3, 3F0D, 3F0F #4, every fourth is mirror of 3F00
 	//3F11 - 3F13 sprite palette 1, 3F15 - 3F17 #2, 3F19 - 3F1B #3, 3F1D-3F1F #4
 	//ones in the middle of the sprite palettes are mirrors of the ones in between palettes. Super Mario Bros uses data at 3F10 and if not implemented right the sky will be black.
-	BYTE palette[0xFF];
+	const int palette[0xFF];
+
+	/*
+	const Color PPU::palette [64] = {
+  0x666666, 0x002A88, 0x1412A7, 0x3B00A4, 0x5C007E, 0x6E0040, 0x6C0600, 0x561D00,
+  0x333500, 0x0B4800, 0x005200, 0x004F08, 0x00404D, 0x000000, 0x000000, 0x000000,
+  0xADADAD, 0x155FD9, 0x4240FF, 0x7527FE, 0xA01ACC, 0xB71E7B, 0xB53120, 0x994E00,
+  0x6B6D00, 0x388700, 0x0C9300, 0x008F32, 0x007C8D, 0x000000, 0x000000, 0x000000,
+  0xFFFEFF, 0x64B0FF, 0x9290FF, 0xC676FF, 0xF36AFF, 0xFE6ECC, 0xFE8170, 0xEA9E22,
+  0xBCBE00, 0x88D800, 0x5CE430, 0x45E082, 0x48CDDE, 0x4F4F4F, 0x000000, 0x000000,
+  0xFFFEFF, 0xC0DFFF, 0xD3D2FF, 0xE8C8FF, 0xFBC2FF, 0xFEC4EA, 0xFECCC5, 0xF7D8A5,
+  0xE4E594, 0xCFEF96, 0xBDF4AB, 0xB3F3CC, 0xB5EBF2, 0xB8B8B8, 0x000000, 0x000000,
+};*/
 
 	//4 nametables arranged in a 4x4 grid. Usually, two are mirrors of the other 2
 	//They are in internal memory starting at locations, $2000, 2400, 2800, 2C00 from top left to bottom right.
