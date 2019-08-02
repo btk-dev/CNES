@@ -48,8 +48,8 @@ void PPU::Clock_Tick()
 		//read memory accesses into latches, when in visible scanline these latches are moved into registers, these are then multiplexed before being written to screen.
 		//currently no mirroring implemented below.
 		//I don't think I need to actually have seperate variable fields for the nametables and the like.
-		this->spriteLatch1 = this->memory[0x2000];
-		this->spriteAttrib1 = this->memory[0x23C0];
+		//this->spriteLatch1 = this->memory[0x2000];
+		//this->spriteAttrib1 = this->memory[0x23C0];
 		//increment VRAM address
 		//fetch low order byte of an 8x1 pixel of pattern table $0000 - 0FF7 or $1000-1FF7
 		//fetch high order from 8 bytes higher
@@ -228,4 +228,141 @@ void PPU::writeRegisters(BYTE reg, BYTE data)
 {
 	//write PPU register to the main bus for the cpu to read
 	_mainbus.write(reg, data);
+}
+
+void PPU::writePPUCTL() {
+	//$2000. Write only
+	/*
+	7  bit  0
+	---- ----
+	VPHB SINN
+	|||| ||||
+	|||| ||++- Base nametable address
+	|||| ||    (0 = $2000; 1 = $2400; 2 = $2800; 3 = $2C00)
+	|||| |+--- VRAM address increment per CPU read/write of PPUDATA
+	|||| |     (0: add 1, going across; 1: add 32, going down)
+	|||| +---- Sprite pattern table address for 8x8 sprites
+	||||       (0: $0000; 1: $1000; ignored in 8x16 mode)
+	|||+------ Background pattern table address (0: $0000; 1: $1000)
+	||+------- Sprite size (0: 8x8 pixels; 1: 8x16 pixels)
+	|+-------- PPU master/slave select
+	|          (0: read backdrop from EXT pins; 1: output color on EXT pins)
+	+--------- Generate an NMI at the start of the
+           vertical blanking interval (0: off; 1: on)
+		   */
+}
+
+void PPU::writePPUMASK() {
+	/*
+	$2001. Write only
+	7  bit  0
+	---- ----
+	BGRs bMmG
+	|||| ||||
+	|||| |||+- Greyscale (0: normal color, 1: produce a greyscale display)
+	|||| ||+-- 1: Show background in leftmost 8 pixels of screen, 0: Hide
+	|||| |+--- 1: Show sprites in leftmost 8 pixels of screen, 0: Hide
+	|||| +---- 1: Show background
+	|||+------ 1: Show sprites
+	||+------- Emphasize red
+	|+-------- Emphasize green
+	+--------- Emphasize blue
+	*/
+	this->PPUMASK = (this->showSprites << 4) & (this->showBackground << 3) & (this->showEdgeSprites << 2) & (this->showEdgeBackground << 1) & (this->greyscale << 0);
+}
+
+BYTE PPU::readPPUSTATUS() {
+	/*
+	$2002. Read only.
+	7  bit  0
+	---- ----
+	VSO. ....
+	|||| ||||
+	|||+-++++- Least significant bits previously written into a PPU register
+	|||        (due to register not being updated for this address)
+	||+------- Sprite overflow. The intent was for this flag to be set
+	||         whenever more than eight sprites appear on a scanline, but a
+	||         hardware bug causes the actual behavior to be more complicated
+	||         and generate false positives as well as false negatives; see
+	||         PPU sprite evaluation. This flag is set during sprite
+	||         evaluation and cleared at dot 1 (the second dot) of the
+	||         pre-render line.
+	|+-------- Sprite 0 Hit.  Set when a nonzero pixel of sprite 0 overlaps
+	|          a nonzero background pixel; cleared at dot 1 of the pre-render
+	|          line.  Used for raster timing.
+	+--------- Vertical blank has started (0: not in vblank; 1: in vblank).
+		   Set at dot 1 of line 241 (the line *after* the post-render
+		   line); cleared after reading $2002 and at dot 1 of the
+		   pre-render line.
+	*/
+	BYTE status;
+	status = (spriteCollision << 6) & (vblank << 7);
+	this->vblank = false;
+	this->firstWrite = true;
+	return status;
+}
+
+void PPU::writeOAMADDR(BYTE data) {
+	/*
+	$2003.
+	Write the address of OAM to access here
+	*/
+	this->OAMADDR = data;
+}
+
+void PPU::writeOAMDATA(BYTE data) {
+	/*
+	$2004
+	Write OAM Data here
+	*/
+	this->internalmemory[this->OAMADDR] = data;
+}
+
+BYTE PPU::readOAMDATA() {
+	/*
+	Read OAM Data
+	*/
+	return this->OAMDATA;
+}
+
+void PPU::writePPUSCROLL(BYTE data) {
+	/*
+	$2005
+	Write the Scroll
+	*/
+	this->PPUSCROLL = data;
+}
+
+void PPU::writePPUADDR(BYTE data) {
+	/*
+	$2006
+	Because the CPU and the PPU are on separate buses, neither has direct access to the other's memory. 
+	The CPU writes to VRAM through a pair of registers on the PPU. First it loads an address into PPUADDR, and then it writes repeatedly to PPUDATA to fill VRAM.
+	*/
+	this->PPUADDR = data;
+}
+
+void PPU::writePPUDATA(BYTE data) {
+	/*
+	$2007
+	VRAM read/write data register. After access, the video memory address will increment by an amount determined by bit 2 of $2000
+	*/
+	this->PPUDATA = data;
+	this->PC += (this->PPUCTRL & 0x02);
+}
+
+BYTE PPU::readPPUDATA() {
+	BYTE data;
+	data = PPUDATA;
+	this->PC += (this->PPUCTRL & 0x02);
+	return data;
+}
+
+void PPU::readOAMDMA() {
+	/*
+	$4014. Writes done on CPU side.
+	This port is located on the CPU. Writing $XX will upload 256 bytes of data from CPU page $XX00-$XXFF to the internal PPU OAM. 
+	This page is typically located in internal RAM, commonly $0200-$02FF, but cartridge RAM or ROM can be used as well.
+	*/
+	readRegisters(4014);
 }

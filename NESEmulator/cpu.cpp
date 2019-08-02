@@ -201,12 +201,44 @@ bool CPU::isPageCrossed(BYTE A, BYTE B) {
 void CPU::writeToMemory(BYTE source, unsigned int destination) {
 	//if destination is inside of the program rom then perform a mapper swap
 	this->memory[destination] = source;
+	//not sure about if this switch statement works
+	switch (destination) {
+	case 0x2000:
+	case 0x2001:
+	case 0x2002:
+	case 0x2003:
+	case 0x2004:
+	case 0x2005:
+	case 0x2006:
+	case 0x2007:
+	case 0x4014:
+		_mainbus.write(destination, source);
+		break;
+	default:
+		break;
+	}
 	SetZN(this->memory[destination]);
 }
 
 void CPU::readFromMemory(unsigned int source, BYTE* destination) {
-	//this doesn't work as of now
+	//this doesn't work as of now. I think it is fixed
 	*destination = this->memory[source];
+	//I don't think this switch statement is correct as of now.
+	switch (*destination) {
+	case 0x2000:
+	case 0x2001:
+	case 0x2002:
+	case 0x2003:
+	case 0x2004:
+	case 0x2005:
+	case 0x2006:
+	case 0x2007:
+	case 0x4014:
+		*destination = _mainbus.read(source);
+		break;
+	default:
+		break;
+	}
 	SetZN(*destination);
 }
 

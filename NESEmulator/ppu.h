@@ -75,7 +75,7 @@ private:
 	//Address $4014. Bits aaaa aaaa. OAM DMA high address
 	BYTE OAMDMA;
 
-	//PPU mode type
+	//PPU mode type (pre-render, visible line, render, etc)
 	BYTE ppuMode;
 
 	//if rendering is enabled
@@ -112,8 +112,43 @@ private:
 	void spriteEval();
 
 	//variable to hold program counter in VRAM
-	unsigned int PC;
+	unsigned int PC;	
 
+	//I think that the NES color palette will be hard coded to SDL colors because they are in the last part of VRAM and will never change.
+
+	void writePPUCTL();
+
+	//ppu mask values
+	bool greyscale;
+	bool showBackground;
+	bool showSprites;
+	bool showEdgeSprites;
+	bool showEdgeBackground;
+
+	void writePPUMASK();
+
+	BYTE readPPUSTATUS();
+
+	void writeOAMADDR(BYTE);
+	
+	BYTE readOAMDATA();
+
+	void writeOAMDATA(BYTE);
+	
+	void writePPUSCROLL(BYTE);
+	
+	void writePPUADDR(BYTE);
+	
+	void writePPUDATA(BYTE);
+
+	BYTE readPPUDATA();
+	
+	void readOAMDMA();
+
+
+
+
+	/*
 	//8 registers for sprite info
 	BYTE spriteReg1;
 	BYTE spriteReg2;
@@ -167,7 +202,7 @@ private:
 	//ones in the middle of the sprite palettes are mirrors of the ones in between palettes. Super Mario Bros uses data at 3F10 and if not implemented right the sky will be black.
 	const int palette[0xFF];
 
-	/*
+
 	const Color PPU::palette [64] = {
   0x666666, 0x002A88, 0x1412A7, 0x3B00A4, 0x5C007E, 0x6E0040, 0x6C0600, 0x561D00,
   0x333500, 0x0B4800, 0x005200, 0x004F08, 0x00404D, 0x000000, 0x000000, 0x000000,
@@ -177,7 +212,7 @@ private:
   0xBCBE00, 0x88D800, 0x5CE430, 0x45E082, 0x48CDDE, 0x4F4F4F, 0x000000, 0x000000,
   0xFFFEFF, 0xC0DFFF, 0xD3D2FF, 0xE8C8FF, 0xFBC2FF, 0xFEC4EA, 0xFECCC5, 0xF7D8A5,
   0xE4E594, 0xCFEF96, 0xBDF4AB, 0xB3F3CC, 0xB5EBF2, 0xB8B8B8, 0x000000, 0x000000,
-};*/
+};
 
 	//4 nametables arranged in a 4x4 grid. Usually, two are mirrors of the other 2
 	//They are in internal memory starting at locations, $2000, 2400, 2800, 2C00 from top left to bottom right.
@@ -192,6 +227,5 @@ private:
 	//Give palette number topleft, topright, bottomleft, bottomright each between 0 and 3 the value of the byte it
 	//value = (bottomright) << 6 | (bottomleft << 4) | (topright << 2) | (topleft << 0)
 	BYTE attributeTable[0x64];
-
-	//I think that the NES color palette will be hard coded to SDL colors because they are in the last part of VRAM and will never change.
+	*/
 };

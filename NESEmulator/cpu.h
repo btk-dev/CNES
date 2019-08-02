@@ -78,6 +78,8 @@ private:
 
 	bool isPageCrossed(BYTE, BYTE);
 
+	mainbus _mainbus;
+
 	Instructions I;
 	Instructions::Instruction inst;
 
