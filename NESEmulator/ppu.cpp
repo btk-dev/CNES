@@ -16,7 +16,7 @@ void PPU::Init()
 	//where ? is unknown, x is irrelevant, + is often set, U = unchanged
 	//writes to PPUCTRL, PPUMASK, PPUSCROLL, PPUADDR are ignored for the first 29 658 cycles
 	this->PPUCTRL = this->PPUMASK = 0;
-	this->PC = this->cycle = 0;
+	this->dtaAddress = this->tmpAddress = this->cycle = 0;
 }
 
 void PPU::load_graphics(std::vector<BYTE> graphics)
@@ -24,6 +24,32 @@ void PPU::load_graphics(std::vector<BYTE> graphics)
 	//only loads 1 bank of graphics. Only works with mapper 0 for now.
 	for (int i = 0; i < graphics.size(); i++)
 		this->memory[i] = graphics[i];
+}
+
+void PPU::fetchNametableByte() {
+	BYTE addr = 0x2000 | (this->dtaAddress & 0x0FFF); //mask off y fine
+	this->_nametable = this->memory[addr];
+}
+
+void PPU::fetchPatternByte(BYTE x_fine) {
+	//as each pattern occupies 16 bytes multiply by 16. Add with y fine
+	BYTE addr = (this->_nametable * 16) + ((this->dtaAddress >> 12) & 0x7);
+	addr |= _bgPage << 12; //find if pattern is in the high or low of page
+
+	this->bgColor = (this->memory[addr] >> (7 ^ x_fine)) & 1; //bit 0 of palette
+	this->bgColor |= ((this->memory[addr + 8] >> (7 ^ x_fine)) & 1) << 1;; //bit 1 of palette
+
+	this->_bgOpaque = this->bgColor; //used to calculate final pixel with sprite pixel
+}
+
+void PPU::fetchAttributeByte() {
+	//fetch attribute and calculate top 2 bits of palette
+	BYTE addr = 0x23C0 | (this->dtaAddress & 0x0C00) | ((this->dtaAddress >> 4) & 0x38) | ((this->dtaAddress >> 2) & 0x07);
+	BYTE attr = this->memory[addr];
+
+	int sft = ((this->dtaAddress >> 4) & 4) | (this->dtaAddress & 2);
+	//set upper 2 bits of color
+	this->bgColor |= ((attr >> sft) & 0x3) << 2;
 }
 
 void PPU::Clock_Tick()
@@ -39,6 +65,17 @@ void PPU::Clock_Tick()
 			Varies in length, depending on if odd or even frame. Odd frame - cycle at the end is skipped (dont by jumping from 339,261 to 0,0 replacing the idle tick at the beginning of the first visible scnaline
 			with the last tick of the last dummy nametable fetch. Even frame - last cycle occurs normally. Done to compensate for shortcomcing with the PPU phsycal output.
 			During pixels 280 through 304 the vertical scroll bits are reloaded if rendering is enabled
+		*/
+		/*
+			In pre render, set nmi occuring, sprite overflow and sprite zero hit to false. This happens on cycle 1
+			If rendering is enabled (show sprites and show background are not false)
+				if cycle > 0 and < 256 render pixels
+				if cycle = 257 evaluate sprites
+			if cycle >= 321 and <= 336
+				load latched with fetching nametable bytes and tile bytes based on cycle % 8
+			Between cycles 257-320 the OAMADDR is set to 0
+			If rendering is enabled copy horizontal pozition from t to v?
+			If rendering is enabled copy vertical position repeatedly on cycles 280-304 (scanline 261)
 		*/
 	case 1:
 		//pre render
@@ -58,12 +95,47 @@ void PPU::Clock_Tick()
 			this->vblank = 0;
 			this->spriteCollision = false;
 		}
+		if (this->cycle == 258 && this->showBackground && this->showSprites) {
+			//show horizontal pixels
+			//this sets bits related to hotizontal position
+			this->dtaAddress &= ~0x41F;
+			this->dtaAddress |= this->tmpAddress & 0x41F;
+		}
 		if (this->cycle > 280 && this->cycle < 341 && this->rendering) {
 			//refresh vertical pixels
+			this->dtaAddress &= ~0x7BE0;
+			this->dtaAddress |= this->tmpAddress & 0x7BE0;
+		}
+		if (this->cycle >= 340 - (this->oddFrame && this->showBackground && this->showSprites)) {
+			//if rendering is emabled then every even frame is one cycle shorter
+			this->ppuMode = 2;
+			this->cycle = this->scanline = 0;
 		}
 		break;
 	case 2:
 		//visible
+		if (this->cycle > 0 && this->cycle <= 256) {
+			//start fetching nametable bytes and the like
+			if (this->showBackground) {
+				int xPos = this->cycle - 1;
+				int yPos = this->scanline - 1;
+
+				//copies from simpleNES, need to figure out what it does.
+				//xScroll currently never set and this will not work.
+				BYTE x_fine = (this->xScroll = xPos) % 8;
+
+				if (this->showBackground || xPos >= 8) {
+					//fetch nametable
+					fetchNametableByte();
+
+					//fetch pattern
+					fetchPatternByte(x_fine);
+
+					//fetch attribute and calculate higher 2 bits of palette
+					fetchAttributeByte();
+				}
+			}
+		}
 		break;
 	case 3:
 		//post render
@@ -230,7 +302,7 @@ void PPU::writeRegisters(BYTE reg, BYTE data)
 	_mainbus.write(reg, data);
 }
 
-void PPU::writePPUCTL() {
+void PPU::writePPUCTL(BYTE data) {
 	//$2000. Write only
 	/*
 	7  bit  0
@@ -250,6 +322,8 @@ void PPU::writePPUCTL() {
 	+--------- Generate an NMI at the start of the
            vertical blanking interval (0: off; 1: on)
 		   */
+	_bgPage = (data >> 4) & 0x1;
+	_bgPage = _bgPage == 0 ? 0 : 1;
 }
 
 void PPU::writePPUMASK() {
@@ -348,13 +422,13 @@ void PPU::writePPUDATA(BYTE data) {
 	VRAM read/write data register. After access, the video memory address will increment by an amount determined by bit 2 of $2000
 	*/
 	this->PPUDATA = data;
-	this->PC += (this->PPUCTRL & 0x02);
+	this->dtaAddress += (this->PPUCTRL & 0x02);
 }
 
 BYTE PPU::readPPUDATA() {
 	BYTE data;
 	data = PPUDATA;
-	this->PC += (this->PPUCTRL & 0x02);
+	this->dtaAddress += (this->PPUCTRL & 0x02);
 	return data;
 }
 

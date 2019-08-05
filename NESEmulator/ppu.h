@@ -53,6 +53,11 @@ private:
 	//oam data for each sprite found to be within range is copied into the secondary oam which is then used to initialize 8 internal sprites
 	BYTE secretOAM[0x20];
 
+	//vector of all sprites
+	std::vector<BYTE> _sprites;
+	//vector of sprites on the current scanline
+	std::vector<BYTE> _scanlineSprites;
+
 	//PPU exposes 8 memory mapped registers to the CPU (usually sit at $2000 through $2007 in CPU memory and mirrored every 8 bytes from 2008 - 3FFF.)
 	//will probably use setters and getters in bus class.
 
@@ -93,6 +98,20 @@ private:
 	//variable to hold v-blank state
 	bool vblank;
 
+	//opaque sprites and background
+	bool _spriteOpaque;
+	bool _bgOpaque;
+
+	//colours
+	BYTE bgColor;
+	BYTE sprColor;
+
+	//sprite level on rendering
+	bool _spriteForeground;
+
+	//bgPage
+	BYTE _bgPage;
+
 	//variable to hold if sprite collision has happened
 	bool spriteCollision;
 
@@ -101,6 +120,10 @@ private:
 
 	//cycle number
 	unsigned int cycle;
+
+	BYTE _nametable;
+	BYTE _pattern;
+	BYTE _attribute;
 
 	//read registers
 	void readRegisters(BYTE reg);
@@ -111,12 +134,24 @@ private:
 	//sprite evaluations for rendering
 	void spriteEval();
 
+	//functions for retrieving relevant information from VRAM
+	void fetchNametableByte();
+	void fetchAttributeByte();
+	void fetchPatternByte(BYTE);
+
 	//variable to hold program counter in VRAM
-	unsigned int PC;	
+	unsigned int dtaAddress;
+	unsigned int tmpAddress;
+
+	//bool for end of screen rendering interrupt
+	bool nmiOccurred;
+
+	//bool for if the sprites are in large format
+	bool largeSprites;
 
 	//I think that the NES color palette will be hard coded to SDL colors because they are in the last part of VRAM and will never change.
 
-	void writePPUCTL();
+	void writePPUCTL(BYTE);
 
 	//ppu mask values
 	bool greyscale;
