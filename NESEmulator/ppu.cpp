@@ -133,15 +133,153 @@ void PPU::Clock_Tick()
 
 					//fetch attribute and calculate higher 2 bits of palette
 					fetchAttributeByte();
+
+					if (x_fine == 7) {
+						//if coarse X == 31
+						if ((this->dtaAddress & 0x001F) == 31) {
+							this->dtaAddress &= 0x001F; //coarse X = 0
+							this->dtaAddress ^= 0x0400; //switch horizontal nametable
+						}
+						else
+							this->dtaAddress += 1; //increment coarse X
+					}
 				}
+
+				if (this->showSprites && (this->showEdgeSprites || xPos >= 8)) {
+					for (int i : this->_scanlineSprites) {
+						BYTE spr_x = this->internalmemory[i * 4 + 3];
+
+						if (0 > xPos - spr_x || xPos - spr_x >= 8)
+							continue;
+
+						BYTE spr_y = this->internalmemory[i * 4 + 0] + 1;
+						BYTE tile = this->internalmemory[i * 4 + 1];
+						BYTE attribute = this->internalmemory[i * 4 + 2];
+
+						int size = this->largeSprites ? 16 : 8;
+
+						int x_shift = (xPos - spr_x) % 8, y_offset = (yPos - spr_y) % size;
+
+						//if not flipping horizontally
+						if ((attribute & 0x40) == 0) {
+							x_shift ^= 7;
+						}
+						//if not flipping vertically
+						if ((attribute & 0x80) != 0) {
+							y_offset ^= (size - 1);
+						}
+
+						BYTE addr = 0;
+
+						if (!this->largeSprites) {
+							addr = tile * 16 + y_offset;
+							if (_sprPage == 1)
+								addr += 0x1000;
+						}
+						//8x16 sprites
+						else {
+							//bit 3 is one if it is the bottom tile of the sprite
+							y_offset = (y_offset & 7) | ((y_offset & 8) << 1);
+							addr = (tile >> 1) * 32 + y_offset;
+							addr |= (tile & 1) << 12; //Bank 0x1000 if bit is high
+						}
+
+						this->sprColor |= (this->memory[addr] >> x_shift) & 1; //bit 0 of palette entry
+						this->sprColor |= ((this->memory[addr + 8]) >> x_shift) & 1;
+
+						if (!(this->_spriteOpaque = this->sprColor)) {
+							this->sprColor = 0;
+							continue;
+						}
+
+						this->sprColor |= 0x10; //select sprite palette
+						this->sprColor |= (attribute & 0x3) << 2; //bits 2 and 3
+
+						this->_spriteForeground = !(attribute & 0x20);
+
+						//sprite 0 hit detection
+						if (!this->spriteCollision && this->showBackground && i == 0 && this->_spriteOpaque && this->_bgOpaque) {
+							this->spriteCollision = 1;
+						}
+
+						break; //now done the highest priority sprite
+					}
+
+					BYTE paletteAddr = this->bgColor;
+
+					if ((!this->_bgOpaque && this->_spriteOpaque) || (this->_bgOpaque && this->_spriteOpaque && this->_spriteForeground))
+						paletteAddr = this->sprColor;
+					else if (!this->_bgOpaque && !this->_spriteOpaque)
+						paletteAddr = 0;
+
+					//set xPos, yPos = palette[paletteAddr]
+				}
+				else if (this->cycle == 257 && this->showBackground) {
+					this->dtaAddress &= ~0x41F;
+					this->dtaAddress |= this->tmpAddress & 0x41F;
+				}
+
+				if (this->cycle >= 340) {
+					//Find and index sprites for the next scanline
+					int range = 8;
+					if (this->largeSprites)
+						range = 16;
+
+					int j = 0;
+
+					for (int i = this->OAMADDR / 4; i < 64; i++) {
+						int diff = (this->scanline - this->internalmemory[i * 4]);
+						if (0 <= diff && diff < range) {
+							this->_scanlineSprites.push_back(i);
+							++j;
+							if (j >= 8)
+								break;
+						}
+					}
+				}
+
+				++this->scanline;
+				this->cycle = 0;
 			}
+
+			if (this->scanline >= 240)
+				this->ppuMode = 3;
 		}
 		break;
 	case 3:
 		//post render
+		if (this->cycle >= 340) {
+			++this->scanline;
+			this->cycle = 0;
+			this->ppuMode = 4;
+
+			/*for (int x = 0; x < this->_pictureBuffer.size(); ++x) {
+				for (int y = 0; y < this->pictureBuffer[0].size(); ++y) {
+					screen[x][y] = color at [x][y]
+				}
+			}
+			*/
+		}
 		break;
 	case 4:
 		//vblank
+		if (this->cycle == 1 && this->scanline == 241) {
+			this->vblank = true;
+			//if (this->nmiOccurred)
+				//call nmi
+		}
+
+		if (this->cycle >= 340) {
+			++this->scanline;
+			this->cycle = 0;
+			}
+
+		if (this->scanline >= 261) {
+			this->ppuMode = 1;
+			this->scanline = 0;
+			this->oddFrame = !this->oddFrame;
+		}
+		
 		break;
 	default:
 		break;
@@ -322,8 +460,18 @@ void PPU::writePPUCTL(BYTE data) {
 	+--------- Generate an NMI at the start of the
            vertical blanking interval (0: off; 1: on)
 		   */
-	_bgPage = (data >> 4) & 0x1;
-	_bgPage = _bgPage == 0 ? 0 : 1;
+	this->_bgPage = (data >> 4) & 0x1;
+	this->_bgPage = this->_bgPage == 0 ? 0 : 1;
+	this->_sprPage = (data >> 5) & 0x1;
+	this->nmiOccurred = (data >> 7) & 0x1;
+	this->largeSprites = (data >> 6) & 0x1;
+	if ((data >> 5) & 0x1)
+		this->dtaAddressInc = 0x20;
+	else {
+		this->dtaAddressInc = 1;
+	}
+	this->tmpAddress &= ~0xC00;
+	this->tmpAddress |= (data & 0x3) << 10;
 }
 
 void PPU::writePPUMASK() {
@@ -423,6 +571,7 @@ void PPU::writePPUDATA(BYTE data) {
 	*/
 	this->PPUDATA = data;
 	this->dtaAddress += (this->PPUCTRL & 0x02);
+	//this->dtaAddress += this->dtaAddressInc;
 }
 
 BYTE PPU::readPPUDATA() {

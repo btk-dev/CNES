@@ -109,8 +109,9 @@ private:
 	//sprite level on rendering
 	bool _spriteForeground;
 
-	//bgPage
+	//high/low pages
 	BYTE _bgPage;
+	BYTE _sprPage;
 
 	//variable to hold if sprite collision has happened
 	bool spriteCollision;
@@ -141,6 +142,7 @@ private:
 
 	//variable to hold program counter in VRAM
 	unsigned int dtaAddress;
+	unsigned int dtaAddressInc;
 	unsigned int tmpAddress;
 
 	//bool for end of screen rendering interrupt
