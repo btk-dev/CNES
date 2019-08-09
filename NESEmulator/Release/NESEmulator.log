@@ -1,0 +1,64 @@
+﻿  gui.cpp
+  mainbus.cpp
+  Cartridge.cpp
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\Cartridge.cpp(20): warning C4244: 'argument': conversion from 'std::streamoff' to 'const unsigned int', possible loss of data
+  Console.cpp
+  cpu.cpp
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(124): warning C4244: '=': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(144): warning C4244: '=': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(170): warning C4805: '|=': unsafe mix of type 'bool' and type 'unsigned int' in operation
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(170): warning C4805: '|': unsafe mix of type 'bool' and type 'unsigned int' in operation
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(187): warning C4018: '<': signed/unsigned mismatch
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(469): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(689): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(795): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(929): warning C4244: '=': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1020): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1032): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1050): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1114): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1126): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1144): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1171): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1208): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1220): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1265): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1390): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1410): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1418): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1558): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1579): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1625): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1660): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1706): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1721): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1739): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1752): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1776): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1902): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(1962): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2036): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2093): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2159): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2227): warning C4305: '-=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2337): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2352): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2367): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2382): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2397): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2412): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2427): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\cpu.cpp(2442): warning C4244: 'argument': conversion from 'unsigned short' to 'BYTE', possible loss of data
+  main.cpp
+  ppu.cpp
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\ppu.cpp(25): warning C4018: '<': signed/unsigned mismatch
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\ppu.cpp(117): warning C4018: '>=': signed/unsigned mismatch
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\ppu.cpp(185): warning C4305: '+=': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\ppu.cpp(610): warning C4305: 'argument': truncation from 'int' to 'BYTE'
+M:\VisualStudio\Workspaces\NESEmulator\NESEmulator\ppu.cpp(610): warning C4309: 'argument': truncation of constant value
+  ppubus.cpp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 362 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  NESEmulator.vcxproj -> M:\VisualStudio\Workspaces\NESEmulator\Release\NESEmulator.exe

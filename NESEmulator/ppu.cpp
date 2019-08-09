@@ -52,6 +52,14 @@ void PPU::fetchAttributeByte() {
 	this->bgColor |= ((attr >> sft) & 0x3) << 2;
 }
 
+void PPU::windowInit() {
+	gui.createWindow();
+}
+
+void PPU::sendRender() {
+	gui.render();
+}
+
 void PPU::Clock_Tick()
 {
 
@@ -213,6 +221,8 @@ void PPU::Clock_Tick()
 						paletteAddr = 0;
 
 					//set xPos, yPos = palette[paletteAddr]
+					//I believe this should work?
+					pixels[scanline * 256 + xPos] = palette[paletteAddr];
 				}
 				else if (this->cycle == 257 && this->showBackground) {
 					this->dtaAddress &= ~0x41F;
@@ -259,6 +269,16 @@ void PPU::Clock_Tick()
 				}
 			}
 			*/
+
+			/*
+			for (int x = 0; x < 256; x++) {
+				for (int y = 0; y < 240; y++) {
+					//screen at x, y = color in buffer at x, y
+				}
+			}
+			*/
+
+			gui.update(pixels);
 		}
 		break;
 	case 4:

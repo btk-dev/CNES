@@ -36,6 +36,9 @@
     <ClCompile Include="mainbus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cpu.h">
@@ -62,13 +65,16 @@
     <ClInclude Include="mainbus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="..\nestest.nes" />
     <None Include="..\official.nes" />
     <None Include="..\Donkey_kong.nes" />
     <None Include="..\official_only.nes" />
     <None Include="..\01-basics.nes" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

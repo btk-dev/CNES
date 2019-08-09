@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="gui.cpp" />
     <ClCompile Include="mainbus.cpp" />
     <ClCompile Include="Cartridge.cpp" />
     <ClCompile Include="Console.cpp" />
@@ -134,6 +135,7 @@
     <ClCompile Include="ppubus.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="gui.h" />
     <ClInclude Include="mainbus.h" />
     <ClInclude Include="cartridge.h" />
     <ClInclude Include="Console.h" />
