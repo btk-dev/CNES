@@ -16,7 +16,10 @@ void PPU::Init()
 	//where ? is unknown, x is irrelevant, + is often set, U = unchanged
 	//writes to PPUCTRL, PPUMASK, PPUSCROLL, PPUADDR are ignored for the first 29 658 cycles
 	this->PPUCTRL = this->PPUMASK = 0;
-	this->dtaAddress = this->tmpAddress = this->cycle = 0;
+	this->dtaAddress = this->tmpAddress = this->cycle = this->scanline = 0;
+	this->oddFrame = false;
+	this->showBackground = this->showSprites = this->firstWrite = true;
+	this->ppuMode = 1;
 }
 
 void PPU::load_graphics(std::vector<BYTE> graphics)
@@ -303,7 +306,6 @@ void PPU::Clock_Tick()
 		break;
 	default:
 		break;
-		cycle++;
 	}
 
 	/*
@@ -398,6 +400,7 @@ void PPU::Clock_Tick()
 		this->oddFrame = false;
 	else
 		this->oddFrame = true;
+	cycle++;
 }
 
 void PPU::spriteEval() {

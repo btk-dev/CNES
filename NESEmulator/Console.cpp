@@ -11,6 +11,10 @@ void Console::createCPU() {
 	this->cpu.Init();
 }
 
+void Console::createPPU() {
+	this->ppu.Init();
+}
+
 void Console::resetConsole(CPU* cpu) {
 	cpu->Reset();
 }
@@ -55,7 +59,7 @@ void Console::loadCartridge(const char* file_path) {
 	if (chr == 1) {
 		if (pgr == 1) {
 			for (int i = 0; i < 8191; i++)
-				graphics[i] = game[i + 16384];
+				graphics.push_back(game[i + 16384]);
 		}
 	}
 

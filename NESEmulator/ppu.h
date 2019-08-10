@@ -12,7 +12,7 @@ using BYTE = unsigned char;
 
 class PPU {
 public:
-
+	
 	void Init();
 
 	void load_graphics(std::vector<BYTE>);

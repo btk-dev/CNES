@@ -10,6 +10,7 @@ int main() {
 
 	Console nes;
 	nes.createCPU();
+	nes.createPPU();
 	//nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\nestest.nes");
 	//donkey kong first opcode crashes
 	nes.loadCartridge("M:\\VisualStudio\\Workspaces\\NESEmulator\\Donkey_kong.nes");

@@ -22,6 +22,9 @@ public:
 	void powerUpConsole();
 	void resetConsole(CPU*);
 
+	//ppu methods
+	void createPPU();
+
 	bool is_Running();
 
 	CPU cpu;
