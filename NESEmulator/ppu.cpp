@@ -63,9 +63,45 @@ void PPU::sendRender() {
 	gui.render();
 }
 
+void PPU::pollBus() {
+	std::vector<BYTE> reg = _mainbus.poll();
+	if (this->PPUSTATUS != reg[0]) {
+		this->PPUSTATUS = reg[0];
+		readPPUSTATUS();
+	}
+	if (this->PPUMASK != reg[1]) {
+		this->PPUMASK = reg[1];
+		writePPUMASK();
+	}
+	if (this->PPUSTATUS != reg[2]) {
+		this->PPUSTATUS = reg[2];
+		readPPUSTATUS();
+	}
+	if (this->OAMADDR != reg[3]) {
+		this->OAMADDR = reg[3];
+		writeOAMADDR(this->OAMADDR);
+	}
+	if (this->PPUDATA != reg[4]) {
+		this->PPUDATA = reg[4];
+		readPPUDATA();
+	}
+	if (this->PPUSCROLL != reg[5]) {
+		this->PPUSCROLL = reg[5];
+		writePPUSCROLL(this->PPUSCROLL);
+	}
+	if (this->PPUADDR != reg[6]) {
+		this->PPUADDR = reg[6];
+		writePPUADDR(this->PPUADDR);
+	}
+	if (this->OAMDMA != reg[7]) {
+		this->OAMDMA = reg[7];
+		readOAMDMA();
+	}
+}
+
 void PPU::Clock_Tick()
 {
-
+	pollBus();
 	//Read Address Bus for changes from the CPU
 
 	switch (ppuMode) {

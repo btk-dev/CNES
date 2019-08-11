@@ -168,6 +168,8 @@ private:
 	bool showEdgeSprites;
 	bool showEdgeBackground;
 
+	void pollBus();
+
 	void writePPUMASK();
 
 	BYTE readPPUSTATUS();

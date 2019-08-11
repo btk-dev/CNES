@@ -80,6 +80,8 @@ private:
 
 	mainbus _mainbus;
 
+	void pollBus();
+
 	Instructions I;
 	Instructions::Instruction inst;
 

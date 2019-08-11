@@ -161,6 +161,7 @@ void CPU::Init() {
 	for (int i = 0; i < 0xFF; i++)
 		this->stack[i] = 0;
 	this->idleCycles = 7;
+	_mainbus.Init();
 }
 
 bool CPU::Reset() {
@@ -2533,6 +2534,63 @@ void CPU::RTI(Instructions::Instruction I) {
 	this->SP++;
 }
 
+void CPU::pollBus() {
+	std::vector<BYTE> reg = _mainbus.poll();
+	if (this->memory[0x2001] != reg[0]) {
+		this->memory[0x2001] = reg[0];
+	}
+	if (this->memory[0x2002] != reg[1])
+		this->memory[0x2002] = reg[1];
+	if (this->memory[0x2003] != reg[2])
+		this->memory[0x2003] = reg[2];
+	if (this->memory[0x2004] != reg[3])
+		this->memory[0x2004] = reg[3];
+	if (this->memory[0x2005] != reg[4])
+		this->memory[0x2005] = reg[4];
+	if (this->memory[0x2006] != reg[5])
+		this->memory[0x2006] = reg[5];
+	if (this->memory[0x2007] != reg[6])
+		this->memory[0x2007] = reg[6];
+	if (this->memory[0x4014] != reg[7]) {
+		this->memory[0x4014] = reg[7];
+		this->idleCycles = 35535;
+	}
+	/*
+	if (this->PPUSTATUS != reg[0]) {
+		this->PPUSTATUS = reg[0];
+		readPPUSTATUS();
+	}
+	if (this->PPUMASK != reg[1]) {
+		this->PPUMASK = reg[1];
+		writePPUMASK();
+	}
+	if (this->PPUSTATUS != reg[2]) {
+		this->PPUSTATUS = reg[2];
+		readPPUSTATUS();
+	}
+	if (this->OAMADDR != reg[3]) {
+		this->OAMADDR = reg[3];
+		writeOAMADDR(this->OAMADDR);
+	}
+	if (this->PPUDATA != reg[4]) {
+		this->PPUDATA = reg[4];
+		readPPUDATA();
+	}
+	if (this->PPUSCROLL != reg[5]) {
+		this->PPUSCROLL = reg[5];
+		writePPUSCROLL(this->PPUSCROLL);
+	}
+	if (this->PPUADDR != reg[6]) {
+		this->PPUADDR = reg[6];
+		writePPUADDR(this->PPUADDR);
+	}
+	if (this->OAMDMA != reg[7]) {
+		this->OAMDMA = reg[7];
+		readOAMDMA();
+	}
+	*/
+}
+
 void CPU::Clock_Tick() {
 	//check for interrupts
 
@@ -2550,6 +2608,8 @@ void CPU::Clock_Tick() {
 	//stack pointer counts down from 0xFD to 0x00 with no overflow protection
 
 	//wait for clock ticks to simulate NES speed
+
+	pollBus();
 
 	if (this->idleCycles > 0) {
 		this->idleCycles--;
