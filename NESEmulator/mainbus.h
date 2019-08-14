@@ -9,8 +9,8 @@ using BYTE = unsigned char;
 class mainbus {
 public:
 
-	 BYTE read(BYTE address);
-	 void write(BYTE address, BYTE data);
+	 static BYTE read(int address);
+	 static void write(int address, BYTE data);
 
 	 //add method to poll and pull all registers for beginning of PPU and CPU cycles for any changes.
 	 //I don't like this system but I feel like I have kind of backed myself into this corner
@@ -22,14 +22,14 @@ public:
 private:
 
 	//All the PPU registers that can be read/written to by the CPU
-	BYTE PPUCTRL;
-	BYTE PPUMASK;
-	BYTE PPUSTATUS;
-	BYTE OAMADDR;
-	BYTE OAMDATA;
-	BYTE PPUSCROLL;
-	BYTE PPUADDR;
-	BYTE PPUDATA;
-	BYTE OAMDMA;
+	static BYTE PPUCTRL;
+	static BYTE PPUMASK;
+	static BYTE PPUSTATUS;
+	static BYTE OAMADDR;
+	static BYTE OAMDATA;
+	static BYTE PPUSCROLL;
+	static BYTE PPUADDR;
+	static BYTE PPUDATA;
+	static BYTE OAMDMA;
 
 };

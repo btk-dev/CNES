@@ -1,36 +1,46 @@
 #include "mainbus.h"
 
+BYTE mainbus::PPUCTRL = 0;
+BYTE mainbus::PPUMASK = 0;
+BYTE mainbus::PPUSTATUS = 0;
+BYTE mainbus::OAMADDR = 0;
+BYTE mainbus::OAMDATA = 0;
+BYTE mainbus::PPUSCROLL = 0;
+BYTE mainbus::PPUADDR = 0;
+BYTE mainbus::PPUDATA = 0;
+BYTE mainbus::OAMDMA = 0;
+
 void mainbus::Init() {
-	this->OAMADDR = 0;
-	this->OAMDATA = 0;
-	this->OAMDMA = 0;
-	this->PPUADDR = 0;
-	this->PPUCTRL = 0;
-	this->PPUDATA = 0;
-	this->PPUMASK = 0;
-	this->PPUSCROLL = 0;
-	this->PPUSTATUS = 0;
+	mainbus::OAMADDR = 0;
+	OAMDATA = 0;
+	OAMDMA = 0;
+	PPUADDR = 0;
+	PPUCTRL = 0;
+	PPUDATA = 0;
+	PPUMASK = 0;
+	PPUSCROLL = 0;
+	PPUSTATUS = 0;
 }
 
-BYTE mainbus::read(BYTE reg)
+BYTE mainbus::read(int reg)
 {
 	BYTE returnValue;
 	switch (reg) {
-	case 0x2002:
+	case 2002:
 		//PPU status
-		returnValue = this->PPUSTATUS;
+		returnValue = PPUSTATUS;
 		break;
-	case 0x2004:
+	case 2004:
 		//OAM data
-		returnValue = this->OAMDATA;
+		returnValue = OAMDATA;
 		break;
-	case 0x2007:
+	case 2007:
 		//ppu data
-		returnValue = this->PPUDATA;
+		returnValue = PPUDATA;
 		break;
-	case 0x4014:
+	case 4014:
 		//oam dma
-		returnValue = this->OAMDMA;
+		returnValue = OAMDMA;
 		break;
 	default:
 		returnValue = 0;
@@ -39,24 +49,24 @@ BYTE mainbus::read(BYTE reg)
 	return returnValue;
 }
 
-void mainbus::write(BYTE reg, BYTE data)
+void mainbus::write(int reg, BYTE data)
 {
 	switch (reg) {
-	case 0x2002:
+	case 2002:
 		//PPU status
-		this->PPUSTATUS = data;
+		PPUSTATUS = data;
 		break;
-	case 0x2004:
+	case 2004:
 		//OAM data
-		this->OAMDATA = data;
+		OAMDATA = data;
 		break;
-	case 0x2007:
+	case 2007:
 		//ppu data
-		this->PPUDATA = data;
+		PPUDATA = data;
 		break;
-	case 0x4014:
+	case 4014:
 		//oam dma
-		this->OAMDMA = data;
+		OAMDMA = data;
 		break;
 	default:
 		break;

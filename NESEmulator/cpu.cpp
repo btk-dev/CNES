@@ -161,7 +161,7 @@ void CPU::Init() {
 	for (int i = 0; i < 0xFF; i++)
 		this->stack[i] = 0;
 	this->idleCycles = 7;
-	_mainbus.Init();
+	this->totalCycles = this->idleCycles;
 }
 
 bool CPU::Reset() {
@@ -2536,23 +2536,23 @@ void CPU::RTI(Instructions::Instruction I) {
 
 void CPU::pollBus() {
 	std::vector<BYTE> reg = _mainbus.poll();
-	if (this->memory[0x2001] != reg[0]) {
-		this->memory[0x2001] = reg[0];
+	if (this->memory[2001] != reg[0]) {
+		this->memory[2001] = reg[0];
 	}
-	if (this->memory[0x2002] != reg[1])
-		this->memory[0x2002] = reg[1];
-	if (this->memory[0x2003] != reg[2])
-		this->memory[0x2003] = reg[2];
-	if (this->memory[0x2004] != reg[3])
-		this->memory[0x2004] = reg[3];
-	if (this->memory[0x2005] != reg[4])
-		this->memory[0x2005] = reg[4];
-	if (this->memory[0x2006] != reg[5])
-		this->memory[0x2006] = reg[5];
-	if (this->memory[0x2007] != reg[6])
-		this->memory[0x2007] = reg[6];
-	if (this->memory[0x4014] != reg[7]) {
-		this->memory[0x4014] = reg[7];
+	if (this->memory[2002] != reg[1])
+		this->memory[2002] = reg[1];
+	if (this->memory[2003] != reg[2])
+		this->memory[2003] = reg[2];
+	if (this->memory[2004] != reg[3])
+		this->memory[2004] = reg[3];
+	if (this->memory[2005] != reg[4])
+		this->memory[2005] = reg[4];
+	if (this->memory[2006] != reg[5])
+		this->memory[2006] = reg[5];
+	if (this->memory[2007] != reg[6])
+		this->memory[2007] = reg[6];
+	if (this->memory[4014] != reg[7]) {
+		this->memory[4014] = reg[7];
 		this->idleCycles = 35535;
 	}
 	/*
@@ -2608,8 +2608,11 @@ void CPU::Clock_Tick() {
 	//stack pointer counts down from 0xFD to 0x00 with no overflow protection
 
 	//wait for clock ticks to simulate NES speed
-
+	if (this->totalCycles == 7)
+		_mainbus.write(4014, 0);
 	pollBus();
+	_mainbus.write(2002, 8);
+	mainbus::write(2002, 8);
 
 	if (this->idleCycles > 0) {
 		this->idleCycles--;
@@ -2635,6 +2638,8 @@ void CPU::Clock_Tick() {
 		//std::cout << std::hex << this->memory[this->PC + 2];
 
 	std::cout << "\n";
+
+	this->totalCycles += inst.cycles;
 
 	switch (inst.type) {
 		//I hate this. Want to change later

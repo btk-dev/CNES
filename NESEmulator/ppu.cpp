@@ -65,8 +65,8 @@ void PPU::sendRender() {
 
 void PPU::pollBus() {
 	std::vector<BYTE> reg = _mainbus.poll();
-	if (this->PPUSTATUS != reg[0]) {
-		this->PPUSTATUS = reg[0];
+	if (this->PPUCTRL != reg[0]) {
+		this->PPUCTRL = reg[0];
 		readPPUSTATUS();
 	}
 	if (this->PPUMASK != reg[1]) {

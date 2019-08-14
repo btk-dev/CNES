@@ -15,6 +15,10 @@ void Console::createPPU() {
 	this->ppu.Init();
 }
 
+void Console::createMainbus() {
+	this->_mainbus.Init();
+}
+
 void Console::resetConsole(CPU* cpu) {
 	cpu->Reset();
 }

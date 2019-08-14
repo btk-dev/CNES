@@ -51,6 +51,8 @@ private:
 	bool overflowFlag;
 	bool negativeFlag;
 
+	unsigned int totalCycles;
+
 	//memory map
 	//$0000 - $07FF 2KB internal RAM
 	//$0800 - $0FFF - mirror of RAM

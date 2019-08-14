@@ -2,8 +2,8 @@
 
 #include <SDL.h>
 #undef main
-const int height = 1024;
-const int width = 512;
+const int height = 512;
+const int width = 1024;
 
 class gui {
 public:
