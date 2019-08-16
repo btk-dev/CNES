@@ -180,6 +180,8 @@ bool CPU::Reset() {
 void CPU::loadGame(std::vector<BYTE> game, BYTE pgr, BYTE chr) {
 	//this needs some work yet. Need to load the file according to prg rom.
 	//if pgr only has 1 16kb bank, then mirror the loading into 0xC000, else load second bank into 0xC000 and use map switching
+	for (int i = 0; i < 0xFFFF; i++)
+		this->memory[i] = 0;
 	for (int i = 0; i < 4095/*game.size()*/; i++)
 		//should actually be this->memory[0x8000] but with nestest this will have to do for now.
 		this->memory[0x8000 + i] = game[i];
