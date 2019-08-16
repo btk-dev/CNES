@@ -2553,7 +2553,7 @@ void CPU::pollBus() {
 		this->memory[2007] = reg[6];
 	if (this->memory[4014] != reg[7]) {
 		this->memory[4014] = reg[7];
-		this->idleCycles = 35535;
+		this->idleCycles = 514;
 	}
 	/*
 	if (this->PPUSTATUS != reg[0]) {
@@ -2608,11 +2608,7 @@ void CPU::Clock_Tick() {
 	//stack pointer counts down from 0xFD to 0x00 with no overflow protection
 
 	//wait for clock ticks to simulate NES speed
-	if (this->totalCycles == 7)
-		_mainbus.write(4014, 0);
 	pollBus();
-	_mainbus.write(2002, 8);
-	mainbus::write(2002, 8);
 
 	if (this->idleCycles > 0) {
 		this->idleCycles--;
