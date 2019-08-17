@@ -63,9 +63,9 @@ private:
 	//$4000 - $4017 - NES APU and I/O registers
 	//$4018 - $401F - APU and I/O functionality. Normally disabled
 	//$4020 - $FFFF - Cartridge space. PRG ROM, PRG RAM and mapper registers
-	unsigned int memory[0xFFFF];
+	BYTE memory[0xFFFF];
 	//Stack starts at 0xFF and goes down
-	unsigned int stack[0xFF];
+	BYTE stack[0xFF];
 	//Common
 	//$6000 - $7FFF - Battery backed save or work ram
 	//$8000 - $FFFF - Usual ROM
@@ -76,7 +76,7 @@ private:
 	BYTE opcode;
 
 	//number of cycles to idle for
-	int idleCycles;
+	BYTE idleCycles;
 
 	bool isPageCrossed(BYTE, BYTE);
 
