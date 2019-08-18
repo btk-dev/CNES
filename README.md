@@ -9,13 +9,13 @@ The NES was a video game console created in the late 1980s by Nintendo and was t
 ### Why
 
 After making the Chip-8 interpreter I decided to try and create an NES emulator as they are extremely well documented online and there
-are a number of other NES emulators already existing online. 
+are a number of other NES emulators already existing online. Started as a summer project between school semesters to understand low level computer operation and architecture.
 The NES is a fairly basic system by modern standards, having only 126 official operations and a small amount of memory for programs and internal systems.
 
 ### Roadmap
 - [x] Parse iNes format roms
 - [x] Create virtual cartridge
-- []  Create Mapper Interface - Currently only mapper 0 implemented
+- [ ]  Create Mapper Interface - Currently only mapper 0 implemented
 - [x] Create CPU
     - [x] Set up memory map
     - [x] Hardware structure - registers
@@ -25,29 +25,29 @@ The NES is a fairly basic system by modern standards, having only 126 official o
           - [x] Decoding opcodes
     Interrupts
 - [x] Using Test Roms ensure CPU is working as intended
-- [] PPU
-  - [] Basic rendering (using SDL)
+- [ ] PPU
+  - [ ] Basic rendering (using SDL)
   - [x] PPU registers
   - [x] Core Rendering Loop
-  - []  Test Rendering Loop
-- [] Ensure PPU working with Test Roms - In Progress
-- [] APU
-     - [] APU registers and memory map
-     - [] Sound Output with SDL
-- [] Run APU test roms
-- [] Input/Output with controllers using SDL
-- [] Add other mappers to increase number of games that can be run.
+  - [ ]  Test Rendering Loop
+- [ ] Ensure PPU working with Test Roms - In Progress
+- [ ] APU
+     - [ ] APU registers and memory map
+     - [ ] Sound Output with SDL
+- [ ] Run APU test roms
+- [ ] Input/Output with controllers using SDL
+- [ ] Add other mappers to increase number of games that can be run.
 
 ## Secondary Objectives
-- [] Load files through SDL window instead of hard coding
-- [] Pause/Fast forward
-- [] Run/Pause
-- [] Saving/Save-states
-- [] Config File
-      - [] Window Size
-      - [] Controls
-      - [] Rom Path
-- [] Movie Recording
-- [] Game Genie
-- [] Debugger
-- [] Unofficial Opcodes
+- [ ] Load files through SDL window instead of hard coding
+- [ ] Pause/Fast forward
+- [ ] Run/Pause
+- [ ] Saving/Save-states
+- [ ] Config File
+      - [ ] Window Size
+      - [ ] Controls
+      - [ ] Rom Path
+- [ ] Movie Recording
+- [ ] Game Genie
+- [ ] Debugger
+- [ ] Unofficial Opcodes
